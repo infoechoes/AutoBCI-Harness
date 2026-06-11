@@ -1,0 +1,88 @@
+{
+  "priority_statement": "当前方向取舍：优先纯脑电、且有机会突破当前正式上限的路线；收尾和控制线只做护栏，不再作为默认主驱动。",
+  "flow_note": "新增方向标签的固定流程：先在 configs/control_plane_direction_tags.json 增加一条标签定义，再把对应 track_id / topic_id / 前缀写进去，dashboard 会自动显示。",
+  "directions": [
+    {
+      "tag": "G",
+      "label": "GRU",
+      "summary": "Feature GRU 纯脑电主线候选",
+      "focus": "pure_brain_breakthrough",
+      "priority": 5,
+      "track_ids": ["feature_gru_mainline"],
+      "algorithm_families": ["feature_gru"]
+    },
+    {
+      "tag": "T",
+      "label": "TCN",
+      "summary": "Feature TCN 纯脑电主线候选",
+      "focus": "pure_brain_breakthrough",
+      "priority": 8,
+      "track_ids": ["feature_tcn_mainline"],
+      "algorithm_families": ["feature_tcn"]
+    },
+    {
+      "tag": "P",
+      "label": "Phase",
+      "summary": "步态相位相关纯脑电方向",
+      "focus": "pure_brain_breakthrough",
+      "priority": 10,
+      "topic_ids": ["wave1_phase_state"],
+      "track_prefixes": ["phase_conditioned_", "phase_aware_"]
+    },
+    {
+      "tag": "D",
+      "label": "DMD/sDM",
+      "summary": "DMD/sDM 表征纯脑电方向",
+      "focus": "pure_brain_breakthrough",
+      "priority": 12,
+      "topic_ids": ["wave1_representation"],
+      "track_prefixes": ["dmd_sdm_"]
+    },
+    {
+      "tag": "R",
+      "label": "Relative",
+      "summary": "相对 RSCA 结构化研究线",
+      "focus": "structure_probe",
+      "priority": 20,
+      "topic_ids": ["relative_origin_xyz"],
+      "track_prefixes": ["relative_origin_xyz"]
+    },
+    {
+      "tag": "U",
+      "label": "Upper",
+      "summary": "相对 RSCA 同试次上限参考",
+      "focus": "same_session_reference",
+      "priority": 30,
+      "topic_ids": ["relative_origin_xyz_upper_bound"],
+      "track_prefixes": ["relative_origin_xyz_upper_bound"]
+    },
+    {
+      "tag": "C",
+      "label": "Canonical",
+      "summary": "当前主线守线与廉价 sanity-check",
+      "focus": "baseline_guard",
+      "priority": 40,
+      "topic_ids": ["canonical_mainline"],
+      "track_prefixes": ["canonical_mainline_"],
+      "track_ids": ["canonical_mainline_tree_xgboost", "canonical_mainline_feature_lstm", "canonical_mainline_ridge"]
+    },
+    {
+      "tag": "H",
+      "label": "Hybrid/History",
+      "summary": "运动学历史 / 混合输入控制线",
+      "focus": "control_reference",
+      "priority": 60,
+      "topic_ids": ["wave1_controls"],
+      "track_ids": ["hybrid_brain_plus_kinematics", "kinematics_only_baseline"]
+    },
+    {
+      "tag": "X",
+      "label": "Tree Calibration",
+      "summary": "树模型校准与 Extra Trees 回退线",
+      "focus": "control_reference",
+      "priority": 70,
+      "topic_ids": ["wave1_tree_calibration"],
+      "track_prefixes": ["tree_calibration_"]
+    }
+  ]
+}

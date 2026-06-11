@@ -1,0 +1,100 @@
+{
+  "schema_version": "autobci_task_record_v1",
+  "record_id": "legacy_gait_status_history",
+  "task_id": "legacy_bci_mainline",
+  "title": "历史回归任务状态记录",
+  "purpose": "dashboard_history_record",
+  "boundary_note": "这是历史回归任务的状态证据包，用于 Dashboard 复盘和 owner 审计；它不是公开 alpha 用户要完成的产品任务。",
+  "dashboard_note": "历史任务记录；不和当前工程示例混算。",
+  "task_contract": {
+    "task_type": "regression_timeseries",
+    "primary_metric": "mean_pearson_r_zero_lag_macro",
+    "panels": [
+      "overview",
+      "attempts",
+      "regression_metrics",
+      "joint_breakdown",
+      "projection",
+      "audit_trail",
+      "artifacts"
+    ]
+  },
+  "dataset": {
+    "dataset_label": "historical_regression_dataset",
+    "target_mode": "multi_dimension_timeseries",
+    "target_space": "continuous_regression",
+    "outputs_count": 8,
+    "split": "cross_session_mainline"
+  },
+  "source_files": [
+    "reports/2026-04-06/autoresearch_status_snapshot.json",
+    "reports/2026-04-07/autoresearch_status_snapshot.json",
+    "reports/2026-04-07/experiment_status.md",
+    "artifacts/monitor/autoresearch_status.json"
+  ],
+  "timeline": [
+    {
+      "recorded_at": "2026-04-06T22:27:50.001742",
+      "source": "reports/2026-04-06/autoresearch_status_snapshot.json",
+      "campaign_id": "main_campaign_question_queue_20260406",
+      "status_role": "accepted_stable_best_snapshot",
+      "stage": "accepted",
+      "frozen_baseline": {
+        "run_id": "stageC_ridge",
+        "model_family": "ridge",
+        "feature_family": "lmp+hg_power",
+        "formal_val_primary_metric": 0.3179927999153733,
+        "test_primary_metric": 0.23221144499257207,
+        "test_rmse": 11.838233470916748
+      },
+      "accepted_stable_best": {
+        "run_id": "stageC_xgboost_256",
+        "model_family": "xgboost",
+        "feature_family": "lmp+hg_power",
+        "formal_val_primary_metric": 0.43290083948522806,
+        "test_primary_metric": 0.37120409961789846,
+        "test_rmse": 10.998988151550293
+      },
+      "leading_unverified_candidate": null,
+      "note": "这一条是历史回归任务的当前最可信最好结果记录，不应被后续工程示例或其它孵化 track 覆盖。"
+    },
+    {
+      "recorded_at": "2026-04-07",
+      "source": "reports/2026-04-07/experiment_status.md",
+      "campaign_id": "main_campaign_question_queue_20260406",
+      "status_role": "human_readable_research_tree",
+      "stage": "explained",
+      "frozen_baseline": {
+        "run_id": "stageC_ridge",
+        "model_family": "ridge"
+      },
+      "accepted_stable_best": {
+        "run_id": "stageC_xgboost_256",
+        "model_family": "xgboost",
+        "test_primary_metric": 0.37120409961789846
+      },
+      "note": "这份 Markdown 把历史任务解释为 8 维连续回归主线，并区分 fixed baseline、accepted stable best 和未复验候选。"
+    },
+    {
+      "recorded_at": "2026-04-21T19:49:49.604Z",
+      "source": "artifacts/monitor/autoresearch_status.json",
+      "campaign_id": "autoresearch-2026-04-22-restart-incubation-feature-state-space-lite",
+      "status_role": "later_incubation_run",
+      "stage": "done",
+      "active_track_id": "incubation_feature_state_space_lite_probe_20260421194626",
+      "candidate_decision": "rollback_scope_violation",
+      "candidate_model_family": "feature_state_space_lite",
+      "candidate_summary": "后续孵化 track 尝试接通 Feature State-Space Lite runnable/preflight 层，但因 scope violation 被回滚。",
+      "note": "这条状态说明后续孵化尝试的执行结论；它不是历史回归任务 accepted stable best 的替代记录。"
+    }
+  ],
+  "interpretation": {
+    "current_stable_record": "timeline[0]",
+    "display_rule": "Dashboard 选择历史回归任务时，可以用本 record 作为历史状态入口；当前工程示例只显示自己的分类面板和示例 ledger。",
+    "do_not_claim": [
+      "不要把工程示例说成用户产品主任务。",
+      "不要把后续孵化 track 的 rollback 状态说成历史回归任务退化。",
+      "不要把单次最高分说成当前最可信最好结果，除非它已经进入 accepted_stable_best。"
+    ]
+  }
+}
