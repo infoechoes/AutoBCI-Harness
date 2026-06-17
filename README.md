@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>你的 7×24 小时自动研究助手</b><br/>
-  A perpetual AutoResearch harness for BCI algorithms: 人类冻结边界,本机持续实验,移动端观察与授权
+  持续运行 AutoResearch,通过微信实时汇报进展,也能接收远程任务
 </p>
 
 <p align="center">
