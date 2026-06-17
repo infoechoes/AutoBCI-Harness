@@ -24,7 +24,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/autobci-research-loop.svg" alt="AutoBCI research control plane" />
+  <img src="docs/assets/autobci-mobile-research-hero.svg" alt="AutoBCI lets you monitor and approve 24/7 research from a mobile gateway while the local research loop keeps running" />
 </p>
 
 ---
@@ -36,6 +36,10 @@ AutoBCI Harness is a local, auditable **24/7 research operator** for coding agen
 It is **not** a brain-computer interface system. It does not decode EEG, run MI-BCI classification, optimize BCI hyperparameters, or provide a clinical/neuroscience model by itself. It is also **not** Andrej Karpathy's `autoresearch` repository. The name comes from the first internal domain where this control-plane pattern was developed: strict-causal BCI/eCOG research. The public harness is domain-adaptable infrastructure for long-running research automation.
 
 This repository is unrelated to the UFPA AutoBCI / Vitor Vilas-Boas project and should not be cited as that work.
+
+<p align="center">
+  <img src="docs/assets/autobci-research-loop.svg" alt="AutoBCI research control plane" />
+</p>
 
 ## What makes it different?
 
