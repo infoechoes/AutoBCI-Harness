@@ -8,7 +8,7 @@ from typing import Any
 from bci_autoresearch.control_plane.runtime_store import read_json, write_json_atomic
 
 
-DEFAULT_TASK_ID = "rsvp_ship_image_only_v0"
+DEFAULT_TASK_ID = "generic_bci_research"
 DATA_PATHS_RELATIVE_PATH = Path(".autobci") / "data_paths.json"
 
 
@@ -86,10 +86,6 @@ def clear_task_dataset_root(repo_root: str | Path, *, task_id: str = DEFAULT_TAS
 
 
 def _env_dataset_root(task_id: str) -> str:
-    if task_id == DEFAULT_TASK_ID:
-        value = os.environ.get("AUTOBCI_RSVP_SHIP_IMAGE_DATASET_ROOT")
-        if value:
-            return value
     return os.environ.get("AUTOBCI_DATASET_ROOT", "")
 
 
@@ -141,8 +137,8 @@ def require_dataset_root(
     root = resolve_dataset_root(repo_root, task_id=task_id, state=state)
     if root is None:
         raise FileNotFoundError(
-            "RSVP 纯图像数据目录未配置。请运行 `autobci data set <path>`，"
-            "或设置 AUTOBCI_RSVP_SHIP_IMAGE_DATASET_ROOT。"
+            "本地数据目录未配置。请运行 `autobci data set <path>`，"
+            "或设置 AUTOBCI_DATASET_ROOT。"
         )
     return root.expanduser().resolve()
 
