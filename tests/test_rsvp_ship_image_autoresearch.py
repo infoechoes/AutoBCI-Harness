@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+import pytest
 from PIL import Image
 
 
@@ -110,3 +111,47 @@ def test_run_image_autoresearch_writes_artifacts_and_blocks_eeg_claim(tmp_path: 
         assert Path(result["artifacts"][key]).exists()
     saved = json.loads(Path(result["artifacts"]["image_result"]).read_text(encoding="utf-8"))
     assert saved["no_cross_modal_claim"] is True
+    assert saved["storage_budget"]["dataset"]["ok"] is True
+    assert saved["storage_budget"]["artifacts_after_run"]["ok"] is True
+
+
+def test_run_image_autoresearch_rejects_dataset_over_budget(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from scripts.run_rsvp_ship_image_autoresearch import run_image_autoresearch
+
+    dataset = _make_dataset(tmp_path)
+    monkeypatch.setenv("AUTOBCI_MAX_DATASET_BYTES", "1B")
+
+    with pytest.raises(RuntimeError) as exc_info:
+        run_image_autoresearch(
+            dataset_root=dataset,
+            output_dir=tmp_path / "artifacts",
+            run_id="budget-run",
+            logistic_epochs=5,
+        )
+
+    assert "AUTOBCI_MAX_DATASET_BYTES" in str(exc_info.value)
+    assert not (tmp_path / "artifacts" / "budget-run").exists()
+
+
+def test_run_image_autoresearch_rejects_existing_artifacts_over_budget(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.run_rsvp_ship_image_autoresearch import run_image_autoresearch
+
+    dataset = _make_dataset(tmp_path)
+    output_dir = tmp_path / "artifacts"
+    output_dir.mkdir()
+    (output_dir / "old-result.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setenv("AUTOBCI_MAX_DATASET_BYTES", "0")
+    monkeypatch.setenv("AUTOBCI_MAX_ARTIFACT_BYTES", "1B")
+
+    with pytest.raises(RuntimeError) as exc_info:
+        run_image_autoresearch(
+            dataset_root=dataset,
+            output_dir=output_dir,
+            run_id="budget-run",
+            logistic_epochs=5,
+        )
+
+    assert "AUTOBCI_MAX_ARTIFACT_BYTES" in str(exc_info.value)
+    assert not (output_dir / "budget-run").exists()

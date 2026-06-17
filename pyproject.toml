@@ -7,7 +7,7 @@ name = "autobci"
 version = "0.1.0"
 description = "Local auditable research-loop harness alpha for BCI and image experiments"
 requires-python = ">=3.10"
-dependencies = ["rich>=13.7", "prompt_toolkit>=3.0", "textual>=8.2"]
+dependencies = ["rich>=13.7"]
 
 [project.optional-dependencies]
 dev = ["pexpect>=4.9", "pyte>=0.8", "pytest>=8"]

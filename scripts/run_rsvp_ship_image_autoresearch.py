@@ -6,6 +6,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import sys
 import time
 from collections import defaultdict
 from dataclasses import dataclass
@@ -16,8 +17,20 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
-
 ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
+from bci_autoresearch.storage_guard import (
+    ARTIFACT_BUDGET_ENV,
+    DATASET_BUDGET_ENV,
+    DEFAULT_MAX_ARTIFACT_BYTES,
+    DEFAULT_MAX_DATASET_BYTES,
+    assert_storage_budget,
+)
+
+
 DEFAULT_DATASET_ROOT = Path(
     os.environ.get("AUTOBCI_DATASET_ROOT", str(ROOT / "data" / "rsvp_ship_image"))
 )
@@ -929,6 +942,18 @@ def run_image_autoresearch(
     started = time.time()
     run_id = run_id or f"rsvp-ship-image-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
     run_dir = output_dir.expanduser().resolve() / run_id
+    dataset_budget = assert_storage_budget(
+        dataset_root,
+        purpose="RSVP image dataset",
+        env_var=DATASET_BUDGET_ENV,
+        default_max_bytes=DEFAULT_MAX_DATASET_BYTES,
+    )
+    artifacts_budget_before = assert_storage_budget(
+        output_dir,
+        purpose="AutoBCI RSVP artifacts",
+        env_var=ARTIFACT_BUDGET_ENV,
+        default_max_bytes=DEFAULT_MAX_ARTIFACT_BYTES,
+    )
     audit, records = build_dataset_audit(dataset_root)
     if audit["label_conflicts"]:
         raise RuntimeError("Label conflicts found; inspect dataset_audit.json before training.")
@@ -973,6 +998,10 @@ def run_image_autoresearch(
         "candidates": model_result["candidates"],
         "elapsed_seconds": float(time.time() - started),
         "artifacts": artifacts,
+        "storage_budget": {
+            "dataset": dataset_budget.as_dict(),
+            "artifacts_before_run": artifacts_budget_before.as_dict(),
+        },
     }
     run_config = {
         "seed": int(seed),
@@ -991,6 +1020,17 @@ def run_image_autoresearch(
     write_split_manifest(Path(artifacts["split_manifest"]), split_rows)
     write_json(Path(artifacts["run_config"]), run_config)
     _write_comparison_report(Path(artifacts["comparison_report"]), result)
+    write_json(Path(artifacts["image_result"]), result)
+    write_json(output_dir.expanduser().resolve() / "latest.json", result)
+    if monitor_latest_path is not None:
+        write_json(monitor_latest_path.expanduser().resolve(), result)
+    artifacts_budget_after = assert_storage_budget(
+        output_dir,
+        purpose="AutoBCI RSVP artifacts",
+        env_var=ARTIFACT_BUDGET_ENV,
+        default_max_bytes=DEFAULT_MAX_ARTIFACT_BYTES,
+    )
+    result["storage_budget"]["artifacts_after_run"] = artifacts_budget_after.as_dict()
     write_json(Path(artifacts["image_result"]), result)
     write_json(output_dir.expanduser().resolve() / "latest.json", result)
     if monitor_latest_path is not None:

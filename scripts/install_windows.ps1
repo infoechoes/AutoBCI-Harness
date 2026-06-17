@@ -58,13 +58,14 @@ Invoke-Step "Creating Python virtual environment" {
     .\.venv\Scripts\python.exe -m pip install --upgrade pip
 }
 
-Invoke-Step "Installing Python package and dependencies" {
-    .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+Invoke-Step "Installing Python package" {
     .\.venv\Scripts\python.exe -m pip install -e .
 }
 
-Invoke-Step "Installing AutoResearch Node dependencies" {
-    npm --prefix tools\autoresearch install
+if (Test-Path "package.json") {
+    Invoke-Step "Installing Pi runtime Node dependencies" {
+        npm install
+    }
 }
 
 Invoke-Step "Running Windows readiness checks" {
@@ -74,4 +75,5 @@ Invoke-Step "Running Windows readiness checks" {
 
 Write-Host ""
 Write-Host "AutoBci Windows setup completed." -ForegroundColor Green
-Write-Host "Start with: .\.venv\Scripts\autobci.exe"
+Write-Host "Start with: .\.venv\Scripts\autobci.exe doctor --json"
+Write-Host "Then run: .\.venv\Scripts\autobci.exe status --json"

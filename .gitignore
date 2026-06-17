@@ -10,6 +10,8 @@ tmp/
 data/
 output/
 artifacts/
+kaggle/
+checkpoints/
 
 .codex/
 .autobci/
@@ -18,9 +20,13 @@ provider_secrets.toml
 providers.toml
 *.log
 
-kaggle/**/data/
-kaggle/**/runs/
-kaggle/**/submissions/
+*.ckpt
+*.npy
+*.npz
+*.onnx
+*.pt
+*.pth
+*.tfevents*
 
 node_modules/
 tools/autoresearch/node_modules/
