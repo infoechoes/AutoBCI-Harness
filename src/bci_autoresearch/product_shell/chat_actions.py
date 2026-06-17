@@ -36,6 +36,9 @@ AUDIT_SCHEMA_VERSION = "autobci_audit_judgment_chain_v1"
 STATUS_KEYWORDS = (
     "现在在跑什么",
     "现在在干什么",
+    "现在进展",
+    "进展如何",
+    "研究进展",
     "当前状态",
     "当前研究态",
     "研究态",
@@ -368,7 +371,7 @@ def build_intake_chat_message(intent: dict[str, Any]) -> str:
         return (
             "你好，我是 AutoBCI 的研究计划助手。你可以先用一句话描述想研究的任务、数据和指标，"
             "不确定也可以。\n"
-            "例如：我想看看纯图像 ship / not-ship 二分类能不能做起来。"
+            "例如：我想用本地脑电和运动学数据建立严格因果的解码任务。"
         )
     return (
         "我还不能把这句话整理成可执行的 Program 草案。你可以先描述："
@@ -389,10 +392,10 @@ def build_direct_result_message(intent: dict[str, Any], result_body: str) -> str
 
 def build_help_message() -> str:
     return (
-        "常用命令：new | data | run | model | theme | tasks | dashboard | remote\n"
+        "常用命令：new | data | run | model | tasks | dashboard | status\n"
         "高级命令：program show | status | help | quit | plan show | director | snapshot | fork | archive | resume\n"
-        "输入 / 只显示常用入口；高级命令仍可直接输入。\n"
-        "也可以直接说自然语言，例如“新起一个任务”“切换任务”“打开 dashboard”。"
+        "AutoBCI 不再维护 TUI；请通过 `autobci ask \"...\" --json` 或现有 agent 对话调用这些命令。\n"
+        "也可以直接说自然语言，例如“新起一个任务”“切换任务”“打开 dashboard”“现在进展如何”。"
     )
 
 

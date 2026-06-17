@@ -141,7 +141,7 @@ def require_dataset_root(
     root = resolve_dataset_root(repo_root, task_id=task_id, state=state)
     if root is None:
         raise FileNotFoundError(
-            "RSVP 纯图像数据目录未配置。请在 TUI 输入 /data 后粘贴数据目录，"
+            "RSVP 纯图像数据目录未配置。请运行 `autobci data set <path>`，"
             "或设置 AUTOBCI_RSVP_SHIP_IMAGE_DATASET_ROOT。"
         )
     return root.expanduser().resolve()

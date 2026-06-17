@@ -73,7 +73,8 @@ cat <<'EOF'
 AutoBCI setup completed.
 Start with:
   source .venv/bin/activate
-  autobci
+  autobci doctor --json
+  autobci status --json
 
 On first launch, configure a model provider key. AutoBCI does not ship a fake fallback model.
 For historical BCI training scripts, rerun with AUTOBCI_INSTALL_ML=1 to install heavy ML dependencies.

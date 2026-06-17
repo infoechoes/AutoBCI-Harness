@@ -70,6 +70,12 @@ from bci_autoresearch.platform_support import (
     is_windows,
     venv_python_path,
 )
+from bci_autoresearch.storage_guard import (
+    DATASET_BUDGET_ENV,
+    DEFAULT_MAX_DATASET_BYTES,
+    check_storage_budget,
+)
+from bci_autoresearch.storage_optimizer import build_storage_optimization_report
 from bci_autoresearch.product_shell.chat_actions import (
     append_shell_trace,
     build_confirmation_message,
@@ -220,7 +226,7 @@ CLEAR_SCREEN = "\033[2J\033[H"
 INTAKE_WELCOME = "描述你的研究任务，我会整理成研究计划、风险和下一步判断。"
 INTAKE_COMPOSER_PLACEHOLDER = "直接描述任务，或输入 / 查看高级命令"
 DEFAULT_INTAKE_AGENT_MODEL = "gpt-5.5"
-DEFAULT_INTAKE_AGENT_TIMEOUT_SECONDS = 25.0
+DEFAULT_INTAKE_AGENT_TIMEOUT_SECONDS = 60.0
 AUTOBCI_TUI_TEST_MODE_ENV = "AUTOBCI_TUI_TEST_MODE"
 AUTOBCI_TUI_ENGINE_ENV = "AUTOBCI_TUI_ENGINE"
 NON_TRANSCRIPT_ACTIONS = {
@@ -300,10 +306,8 @@ SLASH_MENU_COMMANDS = (
     "/data",
     "/run",
     "/model",
-    "/theme",
     "/tasks",
     "/dashboard",
-    "/remote",
 )
 SLASH_COMMAND_HELP = {
     "/new": "新起一个任务",
@@ -311,12 +315,12 @@ SLASH_COMMAND_HELP = {
     "/new clean": "干净开始，不继承旧聊天",
     "/plan": "多轮制定 Program 计划",
     "/model": "切换模型",
-    "/theme": "修改配色",
+    "/theme": "已废弃：TUI 已移除",
     "/reasoning": "切换推理调试显示",
     "/director": "调度研究方向队列",
     "/run": "开始或继续研究",
     "/research": "开始或继续研究",
-    "/remote": "手机远程续聊",
+    "/remote": "已废弃：改用 headless CLI / mobile gateway",
     "/tasks": "切换任务",
     "/switch": "切换任务",
     "/continue": "继续当前项目",
@@ -405,7 +409,7 @@ MODEL_AGENT_OPTIONS = (
     {"name": "intake", "label": "计划/对话模型", "live": True, "note": "用于整理 Program 和日常对话"},
     {"name": "worker", "label": "代码 Worker 模型", "live": False, "note": "用于内置 patch worker 生成受限 JSON patch"},
 )
-MODEL_PROVIDER_ORDER = ("openai", "minimax", "xiaomi", "deepseek", "kimi", "glm", "anthropic")
+MODEL_PROVIDER_ORDER = ("minimax-cn", "minimax", "xiaomi", "deepseek", "glm", "qwen", "kimi", "openai", "anthropic")
 USER_STAGE_LABELS = {
     "Director": "方向选择",
     "Executor": "执行沙盒",
@@ -725,25 +729,68 @@ def _format_data_path_status(repo_root: Path) -> str:
         exists = root.exists() and root.is_dir()
         lines.extend(
             [
-                f"- task: {DEFAULT_DATA_TASK_ID}",
                 f"- dataset_name: {record.get('dataset_name') or root.name or '-'}",
                 f"- dataset_root: {root}",
                 f"- status: {'ready' if exists else 'missing'}",
                 f"- source: {record.get('source') or 'local'}",
             ]
         )
+        if exists:
+            try:
+                budget = check_storage_budget(
+                    root,
+                    purpose="BCI dataset",
+                    env_var=DATASET_BUDGET_ENV,
+                    default_max_bytes=DEFAULT_MAX_DATASET_BYTES,
+                )
+                lines.append(
+                    f"- storage_budget: {budget.as_dict()['current_human']} / "
+                    f"{budget.as_dict()['max_human']} ({'ok' if budget.ok else 'over_limit'})"
+                )
+            except Exception as exc:
+                lines.append(f"- storage_budget: unavailable ({type(exc).__name__}: {exc})")
     else:
-        lines.append("- 当前还没有配置 RSVP 纯图像数据目录。")
+        lines.append("- 当前还没有配置本地 BCI 数据目录。")
     lines.extend(
         [
             "",
             "设置方式：",
-            "- TUI：输入 /data，然后把数据文件夹拖进输入框，回车。",
-            "- CLI：输入 /data /absolute/path/to/dataset。",
-            "- 环境变量：AUTOBCI_RSVP_SHIP_IMAGE_DATASET_ROOT=/path/to/dataset。",
+            "- CLI：autobci data set /absolute/path/to/dataset。",
+            "- 对话入口：让 Claude Code、Codex、Cursor 或 Hermes 调用上面的 CLI。",
+            "- 环境变量：AUTOBCI_DATASET_ROOT=/path/to/dataset。",
             f"- 本地配置文件：{data_paths_config_path(repo_root)}",
         ]
     )
+    return "\n".join(lines)
+
+
+def _format_storage_audit_report(report: dict[str, object]) -> str:
+    summary = report.get("summary") if isinstance(report.get("summary"), dict) else {}
+    roots = report.get("roots") if isinstance(report.get("roots"), list) else []
+    recommendations = report.get("recommendations") if isinstance(report.get("recommendations"), list) else []
+    lines = [
+        "本地记录存储审计：",
+        "",
+        f"- repo_root: {report.get('repo_root') or '-'}",
+        f"- scanned_roots: {summary.get('scanned_roots') or 0}",
+        f"- scanned_size: {summary.get('scanned_human') or '-'}",
+        f"- duplicate_groups: {summary.get('duplicate_groups') or 0}",
+        f"- duplicate_waste: {summary.get('duplicate_waste_human') or '0B'}",
+        f"- compressible_files: {summary.get('compressible_files') or 0}",
+        f"- compressible_candidates: {summary.get('compressible_candidate_human') or '0B'}",
+    ]
+    if roots:
+        lines.extend(["", "扫描目录："])
+        for item in roots[:8]:
+            if not isinstance(item, dict):
+                continue
+            lines.append(f"- {item.get('path')}: {item.get('human')} · files {item.get('files')}")
+    if recommendations:
+        lines.extend(["", "建议："])
+        for item in recommendations:
+            lines.append(f"- {item}")
+    lines.append("")
+    lines.append("当前是 audit-only，不会压缩、删除或移动任何文件。")
     return "\n".join(lines)
 
 
@@ -760,11 +807,10 @@ def _save_data_path_from_input(repo_root: Path, session_state: dict[str, Any], r
     session_state.pop("selection_context", None)
     return (
         "已保存本地数据目录。\n"
-        f"- task: {record['task_id']}\n"
         f"- dataset_name: {record['dataset_name']}\n"
         f"- dataset_root: {record['dataset_root']}\n"
         f"- config: {data_paths_config_path(repo_root)}\n"
-        "\n之后生成 RSVP 纯图像 Program 或运行 research-loop 时会读取这个路径；不会复制或修改原始数据。"
+        "\n之后生成 Program 或运行 research-loop 时会读取这个路径；不会复制或修改原始数据。"
     )
 
 
@@ -774,7 +820,7 @@ def _handle_data_direct_command(parts: list[str], repo_root: Path, session_state
         session_state["selection_context"] = {"kind": "data_path_input", "task_id": DEFAULT_DATA_TASK_ID}
         return (
             "选择本地数据目录。\n"
-            "请把 RSVP 纯图像数据文件夹拖进输入框，或粘贴绝对路径后回车。\n"
+            "请把本地 BCI 数据文件夹拖进输入框，或粘贴绝对路径后回车。\n"
             "输入“取消”可退出。\n\n"
             + _format_data_path_status(repo_root)
         )
@@ -1390,7 +1436,7 @@ def _format_director_menu_message() -> str:
             "3. 查看证据包",
             "4. 返回",
             "",
-            "只生成纯图像 ship/not-ship 的 10+ 个方向，不启动执行沙盒。",
+            "只生成当前 Program 边界内的候选研究方向，不启动执行沙盒。",
             "输入编号继续。",
         ]
     )
@@ -1756,7 +1802,7 @@ def _open_research_step_gate(paths: Any, session_state: dict[str, Any]) -> str:
     append_research_trace_event(
         paths.repo_root,
         task_id=str(gate.get("task_id") or "rsvp_ship_image_only_v0"),
-        actor="TUI",
+        actor="headless_cli",
         event_type="human_gate_waiting",
         action=str(gate.get("gate_type") or "step_pre"),
         track=gate.get("track") if isinstance(gate.get("track"), dict) else {},
@@ -1780,7 +1826,7 @@ def _handle_research_gate_response(paths: Any, session_state: dict[str, Any], co
         append_research_trace_event(
             paths.repo_root,
             task_id=str(gate.get("task_id") or "rsvp_ship_image_only_v0"),
-            actor="TUI",
+            actor="headless_cli",
             event_type="human_gate_waiting",
             action="human_paused",
             track=gate.get("track") if isinstance(gate.get("track"), dict) else {},
@@ -1800,7 +1846,7 @@ def _handle_research_gate_response(paths: Any, session_state: dict[str, Any], co
             append_research_trace_event(
                 paths.repo_root,
                 task_id=str(post_gate.get("task_id") or "rsvp_ship_image_only_v0"),
-                actor="TUI",
+                actor="headless_cli",
                 event_type="human_gate_waiting",
                 action=str(post_gate.get("gate_type") or "post_step_review"),
                 track=post_gate.get("track") if isinstance(post_gate.get("track"), dict) else {},
@@ -1918,41 +1964,16 @@ def _handle_remote_direct_command(
     python_executable: str | None,
     use_model_agent: bool,
 ) -> str:
-    subcommand = str(parts[1]).strip().lower() if len(parts) > 1 else "start"
-    if subcommand in {"stop", "off", "close"}:
-        stopped = stop_remote_bridge(session_state)
-        return "Remote 已关闭。" if stopped else "Remote 没有在运行。"
-    bridge = current_remote_bridge(session_state)
-    if subcommand in {"status", "show"}:
-        if bridge is None:
-            return "Remote 没有开启。输入 /remote 开启当前 TUI 会话的手机远程入口。"
-        return _format_remote_bridge_started(bridge)
-    bind_host, bind_port = _parse_remote_args(parts)
-    command_lock = session_state.setdefault("_remote_command_lock", threading.RLock())
-
-    def _remote_callback(text: str, _meta: dict[str, Any]) -> tuple[bool, str]:
-        with command_lock:
-            return handle_command(
-                text,
-                repo_root=repo_root,
-                host=host,
-                port=port,
-                python_executable=python_executable,
-                session_state=session_state,
-                use_model_agent=use_model_agent,
-            )
-
-    try:
-        bridge = start_remote_bridge(
-            paths=paths,
-            session_state=session_state,
-            host=bind_host,
-            port=bind_port,
-            command_callback=_remote_callback,
-        )
-    except OSError as exc:
-        return f"Remote 启动失败：{exc}。可以试试 /remote --host 127.0.0.1 --port 0。"
-    return _format_remote_bridge_started(bridge)
+    stopped = stop_remote_bridge(session_state)
+    suffix = "\n\n旧 bridge 已关闭。" if stopped else ""
+    return (
+        "旧 `/remote` current-session bridge 已废弃。"
+        "请让 Hermes、ClawBot、Claude Code、Codex、Cursor 或其它 agent 直接调用 headless CLI：\n"
+        "- autobci status --json\n"
+        "- autobci ask \"现在进展如何？\" --json\n"
+        "- autobci-agent research-loop status --json\n"
+        f"{suffix}"
+    )
 
 
 def _terminal_runtime_profile() -> dict[str, object]:
@@ -3626,7 +3647,7 @@ def _program_plan_open_questions(draft: dict[str, Any] | None) -> list[str]:
     ]
     program_id = str(draft.get("program_id") or "")
     if program_id == "rsvp_ship_image_only_v0":
-        questions.insert(0, "确认这一轮只做纯图像 ship / not-ship，不使用脑电。")
+        questions.insert(0, "确认这一轮是内部 smoke fixture，不作为公开 BCI 任务主线。")
     return questions
 
 
@@ -4694,11 +4715,34 @@ def build_parser() -> argparse.ArgumentParser:
     status = subparsers.add_parser("status", help="查看当前控制面状态")
     status.add_argument("--json", action="store_true")
 
+    data = subparsers.add_parser("data", help="管理本地数据目录配置")
+    data_subparsers = data.add_subparsers(dest="data_action", required=True)
+    data_set = data_subparsers.add_parser("set", help="保存本地数据目录")
+    data_set.add_argument("path")
+    data_subparsers.add_parser("show", help="显示当前本地数据目录")
+    data_subparsers.add_parser("clear", help="清除当前本地数据目录")
+
+    storage = subparsers.add_parser("storage", help="审计本地记录和产物占用")
+    storage_subparsers = storage.add_subparsers(dest="storage_action", required=True)
+    storage_audit = storage_subparsers.add_parser("audit", help="扫描重复文件和可压缩记录")
+    storage_audit.add_argument("--json", action="store_true")
+    storage_audit.add_argument("--min-duplicate-bytes", type=int, default=5 * 1024 * 1024)
+    storage_audit.add_argument("--min-compressible-bytes", type=int, default=1024 * 1024)
+
+    ask = subparsers.add_parser("ask", help="处理一次 headless 自然语言/白名单命令 turn")
+    ask.add_argument("message", nargs="+", help="要交给 AutoBCI 的一句话，例如：现在进展如何？")
+    ask.add_argument("--json", action="store_true")
+    ask.add_argument(
+        "--use-model-agent",
+        action="store_true",
+        help="允许调用已配置的 live intake 模型；默认只走确定性命令路由。",
+    )
+
     dashboard = subparsers.add_parser("dashboard", help="打开 Dashboard 运行态投影")
     dashboard.add_argument(
         "--task",
         default=None,
-        help="打开指定任务视图，例如 gait/legacy/rsvp 或完整 task_id",
+        help="打开指定任务视图；默认打开控制面概览",
     )
 
     demo = subparsers.add_parser("demo", help="运行可交付现场 demo")
@@ -4706,7 +4750,7 @@ def build_parser() -> argparse.ArgumentParser:
     onsite = demo_subparsers.add_parser("onsite", help="现场交付检查")
     onsite.add_argument("--provider", default=None, help="live intake provider，例如 openai")
     onsite.add_argument("--model", default=None, help="live intake model，例如 gpt-5.5")
-    onsite.add_argument("--task", default="rsvp", help="Dashboard 任务视图，默认 rsvp")
+    onsite.add_argument("--task", default=None, help="Dashboard 任务视图；默认打开控制面概览")
     onsite.add_argument("--skip-smoke", action="store_true", help="只启动 dashboard/status，不跑 live provider smoke")
     onsite.add_argument("--json", action="store_true")
 
@@ -6171,8 +6215,24 @@ def _provider_call(function_names: tuple[str, ...], *args: Any, **kwargs: Any) -
 def _provider_list_payload() -> dict[str, Any]:
     payload = _provider_call(("list_provider_statuses", "provider_list", "list_providers", "list_provider_configs"))
     if isinstance(payload, dict):
-        return dict(payload)
-    return {"ok": True, "providers": payload if isinstance(payload, list) else []}
+        result = dict(payload)
+        if isinstance(result.get("providers"), list):
+            result["providers"] = _sort_provider_rows(result["providers"])
+        return result
+    return {"ok": True, "providers": _sort_provider_rows(payload if isinstance(payload, list) else [])}
+
+
+def _sort_provider_rows(providers: list[Any]) -> list[Any]:
+    order = {name: index for index, name in enumerate(MODEL_PROVIDER_ORDER)}
+
+    def key(item: Any) -> tuple[int, str]:
+        if isinstance(item, dict):
+            name = str(item.get("name") or item.get("id") or "").strip().lower()
+        else:
+            name = str(item).strip().lower()
+        return (order.get(name, len(order)), name)
+
+    return sorted(providers, key=key)
 
 
 def _provider_list() -> list[dict[str, Any]]:
@@ -6597,6 +6657,8 @@ def _provider_config_status() -> dict[str, Any]:
                 return {"ok": False, "status": "error", "message": f"{type(exc).__name__}: {exc}"}
             if isinstance(payload, dict):
                 result = dict(payload)
+                if isinstance(result.get("providers"), list):
+                    result["providers"] = _sort_provider_rows(result["providers"])
                 result.setdefault("ok", True)
                 return result
             return {"ok": True, "status": "ok", "current": str(payload)}
@@ -6614,8 +6676,6 @@ def build_doctor_report(*, repo_root: Path, host: str, port: int) -> dict[str, A
     cache_root = default_cache_root()
     worktrees_root = default_execution_worktrees_root(repo_root)
     provider_status = _provider_config_status()
-    textual_spec = importlib.util.find_spec("textual")
-    prompt_toolkit_spec = importlib.util.find_spec("prompt_toolkit")
     pi_runner = Path(__file__).resolve().parent.parent / "providers" / "pi_runner.mjs"
     custom_structure_runner = os.environ.get(STRUCTURE_SANDBOX_RUNNER_ENV, "").strip()
     opencode_path = shutil.which("opencode")
@@ -6655,10 +6715,10 @@ def build_doctor_report(*, repo_root: Path, host: str, port: int) -> dict[str, A
         },
         "node": {"ok": shutil.which("node") is not None, "path": shutil.which("node")},
         "npm": {"ok": shutil.which("npm") is not None, "path": shutil.which("npm")},
-        "textual": {"ok": textual_spec is not None, "module": getattr(textual_spec, "name", None) if textual_spec else None},
-        "prompt_toolkit": {
-            "ok": prompt_toolkit_spec is not None,
-            "module": getattr(prompt_toolkit_spec, "name", None) if prompt_toolkit_spec else None,
+        "ui": {
+            "ok": True,
+            "mode": "headless",
+            "message": "AutoBCI no longer requires a TUI. Use CLI/JSON commands from Codex, Claude Code, Cursor, Hermes, or other agents.",
         },
         "pi_runtime": {
             "ok": pi_runner.exists() and shutil.which("node") is not None,
@@ -6720,7 +6780,7 @@ def build_doctor_report(*, repo_root: Path, host: str, port: int) -> dict[str, A
             "venv_python": str(active_venv_python),
             "requires_node": True,
             "install_command": "bash scripts/install_linux.sh",
-            "start_command": "source .venv/bin/activate && autobci",
+            "start_command": "source .venv/bin/activate && autobci status --json",
             "process_group": "start_new_session on POSIX",
         },
     }
@@ -6729,7 +6789,6 @@ def build_doctor_report(*, repo_root: Path, host: str, port: int) -> dict[str, A
         and report["repo_root"]["ok"]
         and report["node"]["ok"]
         and report["npm"]["ok"]
-        and report["textual"]["ok"]
         and report["pi_runtime"]["runner_file_exists"]
     )
     return report
@@ -6764,7 +6823,7 @@ def format_doctor_report(report: dict[str, Any], *, windows_only: bool = False, 
         f"- Python：{'通过' if report['python']['ok'] else '失败'} · {report['python']['executable']}",
         f"- Node：{'通过' if report['node']['ok'] else '未找到'} · {report['node'].get('path') or '-'}",
         f"- npm：{'通过' if report['npm']['ok'] else '未找到'} · {report['npm'].get('path') or '-'}",
-        f"- Textual：{'通过' if report['textual']['ok'] else '未安装'}",
+        f"- UI：{report['ui']['mode']} · TUI not required",
         f"- Pi runtime：{'通过' if report['pi_runtime']['runner_file_exists'] else '缺 runner'} · {report['pi_runtime']['runner_file']}",
         f"- structure sandbox executor：{'通过' if report['structure_sandbox_runner']['ok'] else '未找到可用结构执行器'} · active={report['structure_sandbox_runner'].get('active_kind') or '-'}",
         f"- data paths：{'已配置' if report['data_paths']['ok'] else '未配置或路径不可达'} · {report['data_paths']['config_path']}",
@@ -6861,7 +6920,7 @@ def run_onsite_demo_delivery(
     port: int,
     provider: str | None = None,
     model: str | None = None,
-    task_id: str | None = "rsvp",
+    task_id: str | None = None,
     run_smoke: bool = True,
 ) -> dict[str, Any]:
     run_id = datetime.now(timezone.utc).strftime("onsite-demo-%Y%m%dT%H%M%SZ")
@@ -6880,7 +6939,7 @@ def run_onsite_demo_delivery(
         "steps": steps,
         "next_commands": [
             "autobci status --json",
-            "autobci dashboard --task rsvp",
+            "autobci dashboard",
             "autobci smoke intake-llm --provider openai --model gpt-5.5 --json",
         ],
     }
@@ -6905,7 +6964,8 @@ def run_onsite_demo_delivery(
         _update_demo_step(steps, "status", status="running", summary="正在读取控制面状态。")
         publish("running", "正在读取控制面状态。")
         status_snapshot = build_status_snapshot(get_control_plane_paths(repo_root))
-        research_loop = status_research_loop(repo_root, task_id="rsvp_ship_image_only_v0")
+        resolved_task_id = normalize_dashboard_task_id(task_id)
+        research_loop = status_research_loop(repo_root, task_id=resolved_task_id) if resolved_task_id else {}
         payload["status"] = status_snapshot
         payload["research_loop"] = research_loop
         _update_demo_step(
@@ -7000,7 +7060,7 @@ def format_onsite_demo_delivery(payload: dict[str, Any]) -> str:
             "",
             "现场可用命令：",
             "- autobci status --json",
-            "- autobci dashboard --task rsvp",
+            "- autobci dashboard",
             "- autobci demo onsite --provider openai --model gpt-5.5",
         ]
     )
@@ -7032,6 +7092,61 @@ def build_dashboard_url(host: str, port: int, *, task_id: str | None = None) -> 
     if not resolved_task_id:
         return url
     return f"{url}?{urlencode({'task': resolved_task_id})}"
+
+
+def dashboard_runtime_status(repo_root: Path, host: str, port: int, *, task_id: str | None = None) -> dict[str, Any]:
+    running = is_dashboard_running(host, port)
+    server_root = dashboard_server_repo_root(host, port) if running else None
+    matches_repo = bool(server_root and server_root == repo_root.resolve())
+    launch_port, conflicted_port = resolve_dashboard_launch_port(repo_root, host, port)
+    status = "ready" if matches_repo else "foreign" if running else "not_running"
+    resolved_task_id = normalize_dashboard_task_id(task_id)
+    recommended_command = f"autobci dashboard --port {launch_port}"
+    if resolved_task_id:
+        recommended_command += f" --task {resolved_task_id}"
+    return {
+        "status": status,
+        "running": running,
+        "matches_repo": matches_repo,
+        "host": host,
+        "port": port,
+        "url": build_dashboard_url(host, port, task_id=resolved_task_id),
+        "server_repo_root": str(server_root) if server_root else "",
+        "recommended_port": launch_port,
+        "recommended_url": build_dashboard_url(host, launch_port, task_id=resolved_task_id),
+        "conflicted_port": conflicted_port,
+        "recommended_command": recommended_command,
+    }
+
+
+def _format_dashboard_runtime_note(status: dict[str, Any]) -> str:
+    state = str(status.get("status") or "")
+    if state == "ready":
+        return f"Dashboard：当前端口属于本仓库 · {status.get('url')}"
+    if state == "foreign":
+        return (
+            "Dashboard：默认端口被其它仓库占用，不把它当作当前 AutoBCI 真源。\n"
+            f"- 占用仓库：{status.get('server_repo_root') or '-'}\n"
+            f"- 当前仓库建议：{status.get('recommended_command')}\n"
+            f"- 建议地址：{status.get('recommended_url')}"
+        )
+    return (
+        "Dashboard：当前未运行。\n"
+        f"- 启动命令：{status.get('recommended_command')}\n"
+        f"- 预期地址：{status.get('recommended_url')}"
+    )
+
+
+def _build_cli_status_snapshot(repo_root: Path, host: str, port: int) -> dict[str, Any]:
+    paths = get_control_plane_paths(repo_root)
+    snapshot = build_status_snapshot(paths)
+    snapshot["dashboard_runtime"] = dashboard_runtime_status(repo_root, host, port)
+    return snapshot
+
+
+def _format_cli_status_summary(paths: Any, *, repo_root: Path, host: str, port: int) -> str:
+    status = dashboard_runtime_status(repo_root, host, port)
+    return format_status_summary(paths) + "\n" + _format_dashboard_runtime_note(status)
 
 
 def run_dashboard_command(
@@ -7170,7 +7285,7 @@ def _coerce_agent_tool_to_intent(agent_output: dict[str, Any], command_text: str
             intent["user_intent_kind"] = "draft_program"
             intent["proposed_action"] = "draft_program"
             intent["normalized_request"] = normalized
-            intent["summary"] = "识别为纯图像 ship / not-ship 二分类，已锁定 image-only Program。"
+            intent["summary"] = "识别为内部 smoke fixture，已锁定对应测试 Program；公开主线仍是通用 BCI Program。"
             intent["raw_reasoning"] = str(agent_output.get("raw_reasoning") or "")
             intent["reasoning_summary"] = str(agent_output.get("reasoning_summary") or agent_output.get("reason") or "")
             return intent
@@ -7316,10 +7431,8 @@ def run_codex_intake_agent_turn(
         [
             "你是 AutoBCI 的研究计划助手，专门帮助用户把研究任务推进成可验证、可审计的 Program。",
             "AutoResearch 是你可以调用的一套研究工具箱和方法论，不是用户正在填写的线性管线。你要根据上下文自主选择工具，而不是按关键词路由。",
-            "AutoBCI 可以处理图像、表格、时间序列、跨模态和普通机器学习研究；不要默认把所有任务解释成某个历史示例任务。",
-            "当用户说图像任务、图片任务、纯图像分类或纯图像检测，但没有明确要求使用其他模态或做跨模态比较时，必须按 image-only 纯图像任务理解。",
+            "AutoBCI 的公开主线是通用 BCI 研究闭环，尤其关注严格因果的脑电、运动学、时序和跨试次验证；不要默认把所有任务解释成某个历史示例任务。",
             "即使用户提到一个看起来完整的研究方向，也要先当作讨论。只有用户明确说“生成 Program / 写 Program / 重写 Program / 按当前版本生成”时，才选择 draft_program。",
-            "image-only 纯图像任务在生成 Program 时不要追问与当前任务无关的数据；只能追问或记录图片目录、标签来源、数据划分和成功指标。",
             "只有用户明确要求比较不同数据模态或使用多模态证据时，才把任务解释成 cross-modal。",
             "如果用户输入是“官方，90，没有”这类短答，必须结合最近计划对话和当前计划状态解释；不要把短答当成新任务，也不要用无关内置示例填空。",
             "对公开命名数据集，用户说“官方”通常表示官方数据集或官方数据划分；如果前文指标是准确率，用户只说“90”通常表示目标准确率 90%，不要默认解释成训练集占比，除非用户明确说 90/10、90% 训练或 train=90%。",
@@ -7766,14 +7879,7 @@ def handle_command(
     if action == "theme":
         return (
             False,
-            "配色命令：\n"
-            "1. Graphite\n"
-            "2. Forest\n"
-            "3. Blueprint\n"
-            "4. Paper\n"
-            "5. Violet\n"
-            "\n"
-            "Textual TUI 里输入 /theme 3 或 /theme 后输入编号即可即时切换。",
+            "配色命令已废弃：AutoBCI 不再维护 TUI。请使用 headless CLI、Dashboard 和 mobile gateway。",
         )
     if action == "model_select":
         return False, _handle_model_selection(state, int(parts[1]))
@@ -8105,7 +8211,7 @@ def handle_command(
         rename_topic = lowered_raw.startswith("rename topic")
         new_title = raw[len("rename topic") :].strip() if rename_topic else raw[len("rename") :].strip()
         if not new_title:
-            message = "请输入新标题，例如 /rename 纯图像调试 #3，或 /rename topic 纯图像船只二分类。"
+            message = "请输入新标题，例如 /rename 步态解码调试 #3，或 /rename topic 跨试次稳定性。"
             _trace(
                 {
                     "user_intent_kind": "lifecycle_control",
@@ -8406,7 +8512,7 @@ def handle_command(
         )
         return False, message
     if action in {"judge", "guard"}:
-        message = format_status_summary(paths)
+        message = _format_cli_status_summary(paths, repo_root=repo_root, host=host, port=port)
         _trace(
             {
                 "user_intent_kind": "read_status",
@@ -8563,7 +8669,7 @@ def handle_command(
         )
         return False, message
     if action == "status":
-        message = format_status_summary(paths)
+        message = _format_cli_status_summary(paths, repo_root=repo_root, host=host, port=port)
         _trace(
             {
                 "user_intent_kind": "read_status",
@@ -8843,7 +8949,7 @@ def handle_command(
         )
         return False, message
     if intent.get("user_intent_kind") == "read_status":
-        result_body = format_status_summary(paths)
+        result_body = _format_cli_status_summary(paths, repo_root=repo_root, host=host, port=port)
         message = build_direct_result_message(intent, result_body)
         _trace(
             intent,
@@ -9075,50 +9181,34 @@ def run_tui(
     output: TextIO | None = None,
     python_executable: str | None = None,
 ) -> int:
-    if _requested_tui_engine() == "plain":
-        return _run_plain_tui(
-            repo_root=repo_root,
-            host=host,
-            port=port,
-            input_fn=input_fn,
-            output=output,
-            python_executable=python_executable,
-        )
-    if _requested_tui_engine() in {"rich", "classic"} and _should_use_rich(input_fn=input_fn, output=output):
-        return _run_rich_tui(
-            repo_root=repo_root,
-            host=host,
-            port=port,
-            python_executable=python_executable,
-        )
-    if _should_use_textual(input_fn=input_fn, output=output):
-        return _run_textual_tui(
-            repo_root=repo_root,
-            host=host,
-            port=port,
-            python_executable=python_executable,
-        )
-    if _should_use_prompt_toolkit(input_fn=input_fn, output=output):
-        return _run_prompt_toolkit_tui(
-            repo_root=repo_root,
-            host=host,
-            port=port,
-            python_executable=python_executable,
-        )
-    if _should_use_rich(input_fn=input_fn, output=output):
-        return _run_rich_tui(
-            repo_root=repo_root,
-            host=host,
-            port=port,
-            python_executable=python_executable,
-        )
-    return _run_plain_tui(
-        repo_root=repo_root,
-        host=host,
-        port=port,
-        input_fn=input_fn,
-        output=output,
-        python_executable=python_executable,
+    raise RuntimeError(
+        "AutoBCI TUI has been retired. Use headless CLI commands such as "
+        "`autobci status --json` or `autobci ask \"现在进展如何？\" --json`."
+    )
+
+
+def _format_headless_entry_help() -> str:
+    return "\n".join(
+        [
+            "AutoBCI 是 headless 研究闭环 CLI，不再要求打开 TUI。",
+            "",
+            "常用机器入口：",
+            "- autobci doctor --json",
+            "- autobci status --json",
+            "- autobci model list --json",
+            "- autobci model current --agent intake --json",
+            "- autobci ask \"现在进展如何？\" --json",
+            "",
+            "模型配置：",
+            "- autobci model key minimax-cn",
+            "- autobci model set --agent intake --provider minimax-cn --model MiniMax-M3",
+            "- autobci model test minimax-cn --model MiniMax-M3 --json",
+            "",
+            "数据配置：",
+            "- autobci data set /absolute/path/to/dataset",
+            "",
+            "手机/微信网关：让 Hermes、ClawBot 或其它 agent 调用上面的 CLI；不要再开启 TUI remote bridge。",
+        ]
     )
 
 
@@ -9126,6 +9216,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     repo_root = Path(args.repo_root).resolve() if args.repo_root else Path(__file__).resolve().parents[3]
+    if args.command is None:
+        print(_format_headless_entry_help())
+        return 0
     if args.command == "provider":
         code, message = handle_provider_command(args)
         print(message)
@@ -9148,9 +9241,49 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "status":
         paths = get_control_plane_paths(repo_root)
         if args.json:
-            print(json.dumps(build_status_snapshot(paths), ensure_ascii=False, indent=2))
+            print(json.dumps(_build_cli_status_snapshot(repo_root, args.host, args.port), ensure_ascii=False, indent=2))
         else:
-            print(format_status_summary(paths))
+            print(_format_cli_status_summary(paths, repo_root=repo_root, host=args.host, port=args.port))
+        return 0
+    if args.command == "data":
+        action = str(args.data_action or "").strip().lower()
+        if action == "set":
+            parts = ["data", str(args.path)]
+        else:
+            parts = ["data", action]
+        print(_handle_data_direct_command(parts, repo_root, {}))
+        return 0
+    if args.command == "storage" and args.storage_action == "audit":
+        report = build_storage_optimization_report(
+            repo_root,
+            min_duplicate_bytes=int(args.min_duplicate_bytes),
+            min_compressible_bytes=int(args.min_compressible_bytes),
+        )
+        if args.json:
+            print(json.dumps(report, ensure_ascii=False, indent=2))
+        else:
+            print(_format_storage_audit_report(report))
+        return 0
+    if args.command == "ask":
+        message = " ".join(str(part) for part in args.message).strip()
+        should_quit, response = handle_command(
+            message,
+            repo_root=repo_root,
+            host=args.host,
+            port=args.port,
+            session_state={},
+            use_model_agent=bool(args.use_model_agent),
+        )
+        if args.json:
+            print(
+                json.dumps(
+                    {"ok": True, "quit": bool(should_quit), "message": response},
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
+        else:
+            print(response)
         return 0
     if args.command == "dashboard":
         message = run_dashboard_command(repo_root=repo_root, host=args.host, port=args.port, task_id=args.task)
@@ -9189,11 +9322,8 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(format_doctor_report(report, linux_only=True))
         return 0
-    return run_tui(
-        repo_root=repo_root,
-        host=args.host,
-        port=args.port,
-    )
+    print(_format_headless_entry_help())
+    return 0
 
 
 if __name__ == "__main__":
