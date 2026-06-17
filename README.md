@@ -12,24 +12,9 @@
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey" alt="platform" />
 </p>
 
-```mermaid
-flowchart LR
-  phone["手机 / 微信 / Hermes<br/>论文链接、状态查询、远程授权"]
-  gateway["OpenClaw / Hermes / CLI<br/>只负责传话和白名单命令"]
-  gate["Human Gate<br/>目标、边界、指标、禁止事项"]
-  program["Frozen Program<br/>冻结研究契约"]
-  planner["Research Planner<br/>方向队列"]
-  guard["Guard<br/>防改题、防漏数、防假进步"]
-  worker["Worker Sandbox<br/>Codex / Claude Code / Cursor / OpenCode"]
-  evaluator["Fixed Evaluator<br/>固定评估器"]
-  trace["Trace + Ledger<br/>命令、diff、指标、产物"]
-  memory["State Compression<br/>长期研究记忆压缩"]
-  report["Dashboard / Mobile Report<br/>本地看板与手机进展"]
-
-  phone --> gateway --> gate --> program --> planner --> guard --> worker --> evaluator --> trace
-  trace --> memory --> planner
-  trace --> report --> phone
-```
+<p align="center">
+  <img src="docs/assets/autobci-research-loop.svg" alt="AutoBCI research control plane" />
+</p>
 
 ---
 
