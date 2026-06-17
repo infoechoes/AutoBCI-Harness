@@ -100,23 +100,25 @@
   <g transform="translate(1050 532) rotate(-9)" filter="url(#phoneShadow)">
     <rect x="0" y="0" width="210" height="330" rx="36" fill="#0b1320"/>
     <rect x="14" y="18" width="182" height="294" rx="28" fill="#f8fbff"/>
-    <rect x="34" y="44" width="142" height="46" rx="23" fill="#07c160"/>
-    <circle cx="62" cy="67" r="16" fill="#ffffff"/>
-    <circle cx="82" cy="61" r="12" fill="#ffffff" opacity="0.92"/>
-    <circle cx="57" cy="65" r="2.4" fill="#07c160"/>
-    <circle cx="68" cy="65" r="2.4" fill="#07c160"/>
-    <circle cx="78" cy="60" r="2" fill="#07c160"/>
-    <circle cx="88" cy="60" r="2" fill="#07c160"/>
-    <rect x="34" y="116" width="142" height="54" rx="18" fill="#eef7ff" stroke="#d4e6f7" stroke-width="2"/>
-    <path d="M52 144H104M52 158H84" class="mutedLine"/>
-    <circle cx="152" cy="143" r="12" fill="#0f9f72"/>
-    <path d="M146 143L152 149L162 135" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    <rect x="34" y="188" width="142" height="54" rx="18" fill="#fff7e7" stroke="#f3d796" stroke-width="2"/>
-    <path d="M52 216H118M52 230H96" class="mutedLine"/>
-    <circle cx="152" cy="215" r="12" fill="#f2b84b"/>
-    <path d="M152 207V216L158 222" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-    <rect x="34" y="260" width="142" height="28" rx="14" fill="#111827"/>
-    <text x="66" y="279" class="tiny" fill="#ffffff">STATUS</text>
+    <rect x="31" y="36" width="82" height="82" rx="22" fill="#07c160"/>
+    <circle cx="64" cy="78" r="21" fill="#ffffff"/>
+    <circle cx="89" cy="70" r="16" fill="#ffffff" opacity="0.94"/>
+    <circle cx="57" cy="75" r="3" fill="#07c160"/>
+    <circle cx="70" cy="75" r="3" fill="#07c160"/>
+    <circle cx="83" cy="68" r="2.5" fill="#07c160"/>
+    <circle cx="96" cy="68" r="2.5" fill="#07c160"/>
+    <rect x="124" y="58" width="52" height="14" rx="7" fill="#07c160" opacity="0.22"/>
+    <rect x="124" y="82" width="38" height="10" rx="5" fill="#07c160" opacity="0.16"/>
+    <rect x="34" y="132" width="142" height="48" rx="18" fill="#eef7ff" stroke="#d4e6f7" stroke-width="2"/>
+    <path d="M52 157H104M52 168H84" class="mutedLine"/>
+    <circle cx="152" cy="156" r="12" fill="#0f9f72"/>
+    <path d="M146 156L152 162L162 148" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="34" y="198" width="142" height="48" rx="18" fill="#fff7e7" stroke="#f3d796" stroke-width="2"/>
+    <path d="M52 223H118M52 234H96" class="mutedLine"/>
+    <circle cx="152" cy="222" r="12" fill="#f2b84b"/>
+    <path d="M152 214V223L158 229" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <rect x="34" y="264" width="142" height="30" rx="15" fill="#111827"/>
+    <text x="66" y="284" class="tiny" fill="#ffffff">STATUS</text>
   </g>
 
   <!-- foreground trail texture -->
