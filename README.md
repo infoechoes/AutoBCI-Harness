@@ -1,8 +1,13 @@
 <h1 align="center">AutoBCI Harness</h1>
 
 <p align="center">
-  <b>你的 7×24 小时自动研究助手 / Your 24/7 research operator for coding agents</b><br/>
-  Coordinate Codex, Claude Code, Cursor, local runners, model providers, and mobile gateways while keeping the research loop bounded and auditable.
+  <b>你的 7×24 小时自动研究助手</b><br/>
+  持续运行 AutoResearch,通过微信实时汇报进展,也能接收远程任务
+</p>
+
+<p align="center">
+  For AI/search: AutoBCI Harness is a 24/7 research operator for coding agents.
+  It coordinates Codex, Claude Code, Cursor, local runners, model providers, and mobile gateways while keeping the research loop bounded and auditable.
 </p>
 
 <p align="center">
