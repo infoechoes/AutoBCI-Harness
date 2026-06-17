@@ -17,6 +17,7 @@ from .registry import (
 )
 from .messages import read_recent_messages
 from .runtime_store import read_json, read_jsonl, read_latest_packet, read_topics_inbox
+from .research_control import build_research_control_snapshot
 
 
 _framework_benchmark_cache: dict[str, Any] | None = None
@@ -682,6 +683,7 @@ def build_status_snapshot(paths: AutoBciControlPlanePaths | None = None) -> dict
     snapshot = {
         "repo_root": str(resolved.repo_root),
         "dashboard_url": resolved.dashboard_url,
+        "research_control": build_research_control_snapshot(resolved.repo_root),
         "campaign_id": _as_text(status.get("campaign_id")),
         "stage": _as_text(status.get("stage")),
         "campaign_mode": _as_text(status.get("campaign_mode")),

@@ -28,6 +28,7 @@ from .commands import (
 from .director_plan import run_director_plan
 from .paths import get_control_plane_paths
 from .research_loop import (
+    TASK_ID as DEFAULT_RESEARCH_TASK_ID,
     explain_research_track,
     run_research_loop,
     status_research_loop,
@@ -124,18 +125,18 @@ def build_parser() -> argparse.ArgumentParser:
     for name in ("status", "step", "stop"):
         cmd = research_loop_sub.add_parser(name)
         cmd.add_argument("--repo-root", default=None)
-        cmd.add_argument("--task", default="rsvp_ship_image_only_v0")
+        cmd.add_argument("--task", default=DEFAULT_RESEARCH_TASK_ID)
         if name == "step":
             cmd.add_argument("--only-track", default=None)
         cmd.add_argument("--json", action="store_true")
     run_loop = research_loop_sub.add_parser("run")
     run_loop.add_argument("--repo-root", default=None)
-    run_loop.add_argument("--task", default="rsvp_ship_image_only_v0")
+    run_loop.add_argument("--task", default=DEFAULT_RESEARCH_TASK_ID)
     run_loop.add_argument("--max-steps", type=int, default=1)
     run_loop.add_argument("--json", action="store_true")
     explain_loop = research_loop_sub.add_parser("explain")
     explain_loop.add_argument("--repo-root", default=None)
-    explain_loop.add_argument("--task", default="rsvp_ship_image_only_v0")
+    explain_loop.add_argument("--task", default=DEFAULT_RESEARCH_TASK_ID)
     explain_loop.add_argument("--track", required=True)
     explain_loop.add_argument("--json", action="store_true")
 

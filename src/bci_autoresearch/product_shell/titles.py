@@ -80,10 +80,6 @@ def task_fingerprint_for_program(program: dict[str, Any]) -> str:
 def _fallback_topic_title(program: dict[str, Any], user_message: str) -> tuple[str, list[str]]:
     program_id = _text(program.get("program_id"))
     mode = _input_mode(program)
-    if program_id == "rsvp_ship_image_only_v0" or (mode == "image_only" and "ship" in user_message.lower()):
-        return "纯图像船只二分类", ["rsvp", "ship", "image-only", "binary"]
-    if program_id == "rsvp_ship_crossmodal_v0" or mode == "cross_modal":
-        return "图像与脑电船只识别对照", ["rsvp", "ship", "cross-modal", "binary"]
     if program_id == "gait_phase_binary_v0":
         return "步态二分类", ["gait", "ecog", "binary"]
     goal = program.get("research_goal") if isinstance(program.get("research_goal"), dict) else {}
@@ -99,12 +95,6 @@ def _fallback_topic_title(program: dict[str, Any], user_message: str) -> tuple[s
 
 def _attempt_base(topic_title: str, program: dict[str, Any], debug_flag: bool) -> str:
     program_id = _text(program.get("program_id"))
-    if debug_flag and program_id == "rsvp_ship_image_only_v0":
-        return "Intake 到 Director 调试"
-    if program_id == "rsvp_ship_image_only_v0":
-        return "纯图像船只二分类尝试"
-    if program_id == "rsvp_ship_crossmodal_v0":
-        return "跨模态船只识别尝试"
     if program_id == "gait_phase_binary_v0":
         return "步态二分类尝试"
     if debug_flag:

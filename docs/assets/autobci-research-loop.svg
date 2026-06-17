@@ -28,7 +28,7 @@
       .title{font-family:Arial,Helvetica,sans-serif;font-size:42px;font-weight:900;fill:#0f172a}
       .subtitle{font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:600;fill:#475569}
       .section{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:900;letter-spacing:1.2px;fill:#64748b}
-      .h1{font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:900;fill:#111827}
+      .h1{font-family:Arial,Helvetica,sans-serif;font-size:26px;font-weight:900;fill:#111827}
       .h2{font-family:Arial,Helvetica,sans-serif;font-size:20px;font-weight:850;fill:#111827}
       .h3{font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:800;fill:#111827}
       .body{font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;fill:#334155}
@@ -95,7 +95,8 @@
   <rect x="360" y="128" width="846" height="666" class="control"/>
   <rect x="382" y="150" width="802" height="622" class="gridFill" opacity=".55"/>
   <text x="402" y="188" class="section">AUTOBCI CONTROLLED STATE</text>
-  <text x="402" y="222" class="h1">Program, Guard, Queue, Sandbox, Evaluator, Ledger</text>
+  <text x="402" y="218" class="h1">Program, Guard, Direction Queue</text>
+  <text x="402" y="246" class="h1">Sandbox, Fixed Evaluator, Ledger</text>
 
   <rect x="408" y="258" width="206" height="120" class="gold"/>
   <text x="438" y="296" class="h2">Program</text>
@@ -122,61 +123,61 @@
   <text x="1072" y="340" class="small">feat</text>
   <text x="918" y="366" class="body">ranked by current evidence</text>
 
-  <path d="M314 221H408" class="flowBlue"/>
+  <path d="M314 221H344V318H408" class="flowBlue"/>
   <path d="M614 318H654" class="flowDark"/>
   <path d="M838 318H878" class="flowDark"/>
   <path d="M314 382H408V352" class="flowBlue"/>
   <path d="M314 564H384V488" class="flowBlue"/>
 
   <!-- sandbox belt -->
-  <rect x="408" y="430" width="734" height="164" fill="#fffafa" stroke="#ef5d72" stroke-width="2.4" stroke-dasharray="10 8" rx="24"/>
-  <text x="438" y="466" class="h2">Worker Sandbox Bus</text>
-  <text x="438" y="492" class="body">bounded task packets only</text>
-  <rect x="438" y="524" width="96" height="28" class="rose"/>
-  <text x="451" y="543" class="tiny">Program read-only</text>
+  <rect x="408" y="414" width="748" height="196" fill="#fffafa" stroke="#ef5d72" stroke-width="2.4" stroke-dasharray="10 8" rx="24"/>
+  <text x="438" y="456" class="h2">Worker Sandbox</text>
+  <text x="438" y="486" class="body">bounded packets only</text>
+  <rect x="438" y="520" width="132" height="30" class="rose"/>
+  <text x="454" y="540" class="tiny">Program read-only</text>
 
-  <g transform="translate(604 500)">
-    <rect x="-58" y="-50" width="116" height="102" class="worker"/>
-    <circle cx="0" cy="-12" r="30" class="logoRing"/>
-    <g transform="translate(-23 -35) scale(1.9)">
+  <g transform="translate(696 516)">
+    <rect x="-52" y="-56" width="104" height="112" class="worker"/>
+    <circle cx="0" cy="-22" r="24" class="logoRing"/>
+    <g transform="translate(-17 -39) scale(1.45)">
       <title>Codex worker represented by the OpenAI mark</title>
       <path fill="#111827" d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z"/>
     </g>
-    <text x="-31" y="34" class="small">Codex</text>
+    <text x="-31" y="42" class="small">Codex</text>
   </g>
 
-  <g transform="translate(762 500)">
-    <rect x="-58" y="-50" width="116" height="102" class="worker"/>
-    <circle cx="0" cy="-12" r="30" class="logoRing"/>
-    <g transform="translate(-23 -35) scale(1.9)">
+  <g transform="translate(824 516)">
+    <rect x="-52" y="-56" width="104" height="112" class="worker"/>
+    <circle cx="0" cy="-22" r="24" class="logoRing"/>
+    <g transform="translate(-17 -39) scale(1.45)">
       <title>Claude worker</title>
       <path fill="#D97757" d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 0 1-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z"/>
     </g>
-    <text x="-34" y="34" class="small">Claude</text>
+    <text x="-34" y="42" class="small">Claude</text>
   </g>
 
-  <g transform="translate(920 500)">
-    <rect x="-58" y="-50" width="116" height="102" class="worker"/>
-    <circle cx="0" cy="-12" r="30" class="logoRing"/>
-    <g transform="translate(-18 -35) scale(.15)">
+  <g transform="translate(952 516)">
+    <rect x="-52" y="-56" width="104" height="112" class="worker"/>
+    <circle cx="0" cy="-22" r="24" class="logoRing"/>
+    <g transform="translate(-14 -39) scale(.115)">
       <title>OpenCode worker</title>
       <path d="M180 240H60V120H180V240Z" fill="#CFCECD"/>
       <path d="M180 60H60V240H180V60ZM240 300H0V0H240V300Z" fill="#211E1E"/>
     </g>
-    <text x="-43" y="34" class="small">OpenCode</text>
+    <text x="-43" y="42" class="small">OpenCode</text>
   </g>
 
-  <g transform="translate(1078 500)">
-    <rect x="-58" y="-50" width="116" height="102" class="worker"/>
-    <circle cx="0" cy="-12" r="30" class="logoRing"/>
-    <path d="M-13 -24H13V2H-13Z" fill="#0f172a"/>
-    <path d="M-5 -16H21V10H-5Z" fill="none" stroke="#0f172a" stroke-width="4"/>
-    <text x="-44" y="34" class="small">Custom</text>
+  <g transform="translate(1080 516)">
+    <rect x="-52" y="-56" width="104" height="112" class="worker"/>
+    <circle cx="0" cy="-22" r="24" class="logoRing"/>
+    <path d="M-11 -34H11V-12H-11Z" fill="#0f172a"/>
+    <path d="M-4 -27H18V-5H-4Z" fill="none" stroke="#0f172a" stroke-width="3.1"/>
+    <text x="-44" y="42" class="small">Custom</text>
   </g>
 
-  <path d="M1008 378V430" class="flowDark"/>
-  <path d="M512 378V430" class="flowDark"/>
-  <path d="M746 378V430" class="flowDark"/>
+  <path d="M1008 378V414" class="flowDark"/>
+  <path d="M512 378V414" class="flowDark"/>
+  <path d="M746 378V414" class="flowDark"/>
 
   <!-- evaluation and audit row -->
   <rect x="408" y="648" width="206" height="98" class="green"/>
@@ -194,7 +195,7 @@
   <text x="930" y="712" class="body">events.jsonl / result.json</text>
   <text x="930" y="734" class="body">diff / stdout / judgment</text>
 
-  <path d="M762 594V648" class="flowDark"/>
+  <path d="M762 610V648" class="flowDark"/>
   <path d="M614 697H654" class="flowDark"/>
   <path d="M860 697H900" class="flowDark"/>
   <path d="M1021 648V610C1021 610 1021 610 1021 610H1021" class="dashNoArrow"/>
@@ -204,7 +205,7 @@
   <!-- outputs column -->
   <text x="1260" y="146" class="section">OBSERVE / APPROVE SURFACES</text>
   <rect x="1240" y="168" width="306" height="318" class="surface"/>
-  <g transform="translate(1350 202) scale(2.4)">
+  <g transform="translate(1358 198) scale(1.9)">
     <title>Report surface icon</title>
     <path fill="#D97757" d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 0 1-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z"/>
   </g>
@@ -232,10 +233,10 @@
   <!-- bottom invariants -->
   <rect x="68" y="792" width="1470" height="70" fill="#ffffff" stroke="#d8e2ef" stroke-width="2" rx="20"/>
   <text x="96" y="820" class="section">THREE NON-NEGOTIABLES</text>
-  <rect x="330" y="812" width="270" height="32" class="gold"/>
-  <text x="378" y="834" class="small">Program frozen: task cannot drift</text>
-  <rect x="668" y="812" width="286" height="32" class="green"/>
-  <text x="710" y="834" class="small">Evaluator fixed: metric cannot move</text>
-  <rect x="1022" y="812" width="316" height="32" class="rose"/>
-  <text x="1060" y="834" class="small">Sandbox isolated: workers cannot pollute truth</text>
+  <rect x="360" y="812" width="270" height="32" class="gold"/>
+  <text x="408" y="834" class="small">Program frozen: task cannot drift</text>
+  <rect x="690" y="812" width="286" height="32" class="green"/>
+  <text x="732" y="834" class="small">Evaluator fixed: metric cannot move</text>
+  <rect x="1040" y="812" width="316" height="32" class="rose"/>
+  <text x="1078" y="834" class="small">Sandbox isolated: workers cannot pollute truth</text>
 </svg>

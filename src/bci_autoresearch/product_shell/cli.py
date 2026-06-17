@@ -46,6 +46,7 @@ from bci_autoresearch.control_plane.director_plan import (
     run_director_plan,
 )
 from bci_autoresearch.control_plane.research_loop import (
+    TASK_ID as DEFAULT_RESEARCH_TASK_ID,
     STRUCTURE_SANDBOX_RUNNER_ENV,
     STRUCTURE_SANDBOX_TIMEOUT_ENV,
     append_research_trace_event,
@@ -58,8 +59,16 @@ from bci_autoresearch.control_plane.research_loop import (
 )
 from bci_autoresearch.control_plane.programs import (
     ProgramContractError,
-    looks_like_rsvp_ship_image_only_request,
     validate_program_contract,
+)
+from bci_autoresearch.control_plane.research_control import (
+    build_research_control_snapshot,
+    build_research_tree,
+    clear_goal,
+    complete_goal,
+    start_goal,
+    start_perp,
+    stop_perp,
 )
 from bci_autoresearch.control_plane.runtime_store import append_jsonl, read_json, read_jsonl, write_json_atomic
 from bci_autoresearch.platform_support import (
@@ -832,6 +841,96 @@ def _handle_data_direct_command(parts: list[str], repo_root: Path, session_state
         return "已清除本地数据目录配置。" if cleared else "当前没有本地数据目录配置可清除。"
     raw_path = " ".join(parts[1:]).strip()
     return _save_data_path_from_input(repo_root, session_state, raw_path)
+
+
+def _format_goal_status(payload: dict[str, Any]) -> str:
+    goal = payload.get("goal") if isinstance(payload.get("goal"), dict) else payload
+    if not isinstance(goal, dict) or not goal:
+        return "Goal：当前没有 active goal。"
+    return "\n".join(
+        [
+            f"Goal：{goal.get('status') or '-'}",
+            f"- goal_id: {goal.get('goal_id') or '-'}",
+            f"- objective: {goal.get('objective') or '-'}",
+            f"- success_check: {goal.get('success_check') or '-'}",
+            f"- evidence: {goal.get('evidence') or '-'}",
+        ]
+    )
+
+
+def _format_perp_status(payload: dict[str, Any]) -> str:
+    perp = payload.get("perp") if isinstance(payload.get("perp"), dict) else payload
+    if not isinstance(perp, dict) or not perp:
+        return "Perp：当前没有 active perpetual loop。"
+    return "\n".join(
+        [
+            f"Perp：{perp.get('status') or '-'}",
+            f"- perp_id: {perp.get('perp_id') or '-'}",
+            f"- objective: {perp.get('objective') or '-'}",
+            f"- cadence: {perp.get('cadence') or '-'}",
+            f"- execution_model: {perp.get('execution_model') or '-'}",
+        ]
+    )
+
+
+def _format_research_tree_status(payload: dict[str, Any]) -> str:
+    nodes = payload.get("nodes") if isinstance(payload.get("nodes"), list) else []
+    edges = payload.get("edges") if isinstance(payload.get("edges"), list) else []
+    goal = payload.get("goal") if isinstance(payload.get("goal"), dict) else {}
+    perp = payload.get("perp") if isinstance(payload.get("perp"), dict) else {}
+    return "\n".join(
+        [
+            "Research Tree：",
+            f"- nodes: {len(nodes)}",
+            f"- edges: {len(edges)}",
+            f"- goal: {goal.get('status') or 'none'}",
+            f"- perp: {perp.get('status') or 'none'}",
+            f"- state_path: {payload.get('state_path') or '-'}",
+        ]
+    )
+
+
+def _handle_goal_cli(args: argparse.Namespace, *, repo_root: Path) -> dict[str, Any]:
+    action = str(args.goal_action or "status")
+    if action == "start":
+        return start_goal(
+            repo_root,
+            objective=" ".join(str(part) for part in args.objective).strip(),
+            success_check=args.success or "",
+            constraints=args.constraint or [],
+            replace=bool(args.replace),
+        )
+    if action == "complete":
+        return complete_goal(repo_root, evidence=str(args.evidence or "").strip())
+    if action == "clear":
+        return clear_goal(repo_root)
+    if action == "status":
+        return {"ok": True, "goal": build_research_control_snapshot(repo_root).get("goal") or {}}
+    raise ValueError(f"Unknown goal action: {action}")
+
+
+def _handle_perp_cli(args: argparse.Namespace, *, repo_root: Path) -> dict[str, Any]:
+    action = str(args.perp_action or "status")
+    if action == "start":
+        return start_perp(
+            repo_root,
+            objective=" ".join(str(part) for part in args.objective).strip(),
+            cadence=args.cadence,
+            scope=args.scope,
+            replace=bool(args.replace),
+        )
+    if action == "stop":
+        return stop_perp(repo_root, reason=str(args.reason or "").strip())
+    if action == "status":
+        return {"ok": True, "perp": build_research_control_snapshot(repo_root).get("perp") or {}}
+    raise ValueError(f"Unknown perp action: {action}")
+
+
+def _handle_research_tree_cli(args: argparse.Namespace, *, repo_root: Path) -> dict[str, Any]:
+    action = str(args.tree_action or "show")
+    if action in {"show", "status"}:
+        return build_research_tree(repo_root)
+    raise ValueError(f"Unknown research-tree action: {action}")
 
 
 def _model_provider_rows() -> list[dict[str, Any]]:
@@ -1761,7 +1860,7 @@ def _post_step_gate(payload: dict[str, Any]) -> dict[str, Any] | None:
     return {
         "kind": "research_gate",
         "gate_type": gate_type,
-        "task_id": payload.get("task_id") or "rsvp_ship_image_only_v0",
+        "task_id": payload.get("task_id") or DEFAULT_RESEARCH_TASK_ID,
         "track": track,
         "payload": payload,
         "prompt": prompt,
@@ -1782,7 +1881,7 @@ def _preview_gate_from_payload(preview: dict[str, Any]) -> dict[str, Any]:
     return {
         "kind": "research_gate",
         "gate_type": preview.get("gate_type") or "step_pre",
-        "task_id": preview.get("task_id") or "rsvp_ship_image_only_v0",
+        "task_id": preview.get("task_id") or DEFAULT_RESEARCH_TASK_ID,
         "track": track,
         "prompt": prompt,
         "reason": "方向选择准备把这个 track 作为下一步 active track。",
@@ -1791,7 +1890,7 @@ def _preview_gate_from_payload(preview: dict[str, Any]) -> dict[str, Any]:
 
 
 def _open_research_step_gate(paths: Any, session_state: dict[str, Any]) -> str:
-    preview = preview_research_step(paths.repo_root, task_id="rsvp_ship_image_only_v0")
+    preview = preview_research_step(paths.repo_root, task_id=DEFAULT_RESEARCH_TASK_ID)
     if preview.get("status") == "stalled":
         return f"研究闭环已停止空转：{preview.get('reason') or '-'}"
     if preview.get("status") == "empty":
@@ -1800,7 +1899,7 @@ def _open_research_step_gate(paths: Any, session_state: dict[str, Any]) -> str:
     session_state["research_gate"] = gate
     append_research_trace_event(
         paths.repo_root,
-        task_id=str(gate.get("task_id") or "rsvp_ship_image_only_v0"),
+        task_id=str(gate.get("task_id") or DEFAULT_RESEARCH_TASK_ID),
         actor="headless_cli",
         event_type="human_gate_waiting",
         action=str(gate.get("gate_type") or "step_pre"),
@@ -1824,7 +1923,7 @@ def _handle_research_gate_response(paths: Any, session_state: dict[str, Any], co
         session_state.pop("research_gate", None)
         append_research_trace_event(
             paths.repo_root,
-            task_id=str(gate.get("task_id") or "rsvp_ship_image_only_v0"),
+            task_id=str(gate.get("task_id") or DEFAULT_RESEARCH_TASK_ID),
             actor="headless_cli",
             event_type="human_gate_waiting",
             action="human_paused",
@@ -1837,14 +1936,14 @@ def _handle_research_gate_response(paths: Any, session_state: dict[str, Any], co
     gate_type = str(gate.get("gate_type") or "")
     if gate_type in {"step_pre", "edit_code_pre"}:
         session_state.pop("research_gate", None)
-        payload = step_research_loop(paths.repo_root, task_id=str(gate.get("task_id") or "rsvp_ship_image_only_v0"))
+        payload = step_research_loop(paths.repo_root, task_id=str(gate.get("task_id") or DEFAULT_RESEARCH_TASK_ID))
         message = _format_research_loop_step_message(payload)
         post_gate = _post_step_gate(payload)
         if post_gate is not None:
             session_state["research_gate"] = post_gate
             append_research_trace_event(
                 paths.repo_root,
-                task_id=str(post_gate.get("task_id") or "rsvp_ship_image_only_v0"),
+                task_id=str(post_gate.get("task_id") or DEFAULT_RESEARCH_TASK_ID),
                 actor="headless_cli",
                 event_type="human_gate_waiting",
                 action=str(post_gate.get("gate_type") or "post_step_review"),
@@ -1886,7 +1985,7 @@ def _handle_research_direct_command(parts: list[str], paths: Any, session_state:
     if subcommand in {"step", "run"}:
         return _open_research_step_gate(paths, session_state)
     if subcommand == "status":
-        payload = status_research_loop(paths.repo_root, task_id="rsvp_ship_image_only_v0")
+        payload = status_research_loop(paths.repo_root, task_id=DEFAULT_RESEARCH_TASK_ID)
         active = payload.get("active_track") if isinstance(payload.get("active_track"), dict) else {}
         return (
             "研究闭环状态："
@@ -1894,14 +1993,14 @@ def _handle_research_direct_command(parts: list[str], paths: Any, session_state:
             f"最近方向：{active.get('track_id') or '-'}"
         )
     if subcommand == "stop":
-        payload = stop_research_loop(paths.repo_root, task_id="rsvp_ship_image_only_v0")
+        payload = stop_research_loop(paths.repo_root, task_id=DEFAULT_RESEARCH_TASK_ID)
         session_state.pop("research_gate", None)
         return f"研究闭环已停止：{payload.get('status') or '-'}"
     if subcommand in {"events", "trace"}:
-        payload = status_research_loop(paths.repo_root, task_id="rsvp_ship_image_only_v0")
+        payload = status_research_loop(paths.repo_root, task_id=DEFAULT_RESEARCH_TASK_ID)
         return _format_research_events_summary(payload)
     if subcommand == "explain" and len(parts) >= 3:
-        payload = explain_research_track(paths.repo_root, task_id="rsvp_ship_image_only_v0", track_id=str(parts[2]))
+        payload = explain_research_track(paths.repo_root, task_id=DEFAULT_RESEARCH_TASK_ID, track_id=str(parts[2]))
         chain = payload.get("judgment_chain") if isinstance(payload.get("judgment_chain"), list) else []
         events = payload.get("events") if isinstance(payload.get("events"), list) else []
         if not chain and not events:
@@ -2539,7 +2638,7 @@ def _attach_experiment_state(
     enriched = dict(snapshot)
     enriched["experiment_state"] = _experiment_state_for_snapshot(paths, session_state)
     try:
-        enriched["research_loop"] = status_research_loop(paths.repo_root, task_id="rsvp_ship_image_only_v0")
+        enriched["research_loop"] = status_research_loop(paths.repo_root, task_id=DEFAULT_RESEARCH_TASK_ID)
     except Exception:
         enriched["research_loop"] = {"available": False}
     return enriched
@@ -3644,9 +3743,6 @@ def _program_plan_open_questions(draft: dict[str, Any] | None) -> list[str]:
         "确认数据划分是否允许按当前冻结 train / val / test 清单执行。",
         "确认是否只生成 Program，不启动执行沙盒或正式 AutoResearch。",
     ]
-    program_id = str(draft.get("program_id") or "")
-    if program_id == "rsvp_ship_image_only_v0":
-        questions.insert(0, "确认这一轮是内部 smoke fixture，不作为公开 BCI 任务主线。")
     return questions
 
 
@@ -3725,13 +3821,6 @@ def _format_program_discussion_message(plan: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _explicit_cross_modal_request(text: str) -> bool:
-    lowered = str(text or "").lower()
-    return ("脑电" in str(text or "") or "eeg" in lowered) and any(
-        token in str(text or "") or token in lowered for token in ("比较", "对比", "cross", "跨模态")
-    )
-
-
 def _draft_program_for_plan(
     text: str,
     snapshot: dict[str, Any],
@@ -3786,14 +3875,6 @@ def _advance_program_plan(
         return cast(dict[str, Any], draft["__error_intent"])
     if isinstance(draft, dict) and isinstance(draft.get("__passthrough_intent"), dict):
         return cast(dict[str, Any], draft["__passthrough_intent"])
-    if (
-        isinstance(existing_draft, dict)
-        and str(existing_draft.get("program_id") or "") == "rsvp_ship_image_only_v0"
-        and isinstance(draft, dict)
-        and str(draft.get("program_id") or "") != "rsvp_ship_image_only_v0"
-        and not _explicit_cross_modal_request(current)
-    ):
-        draft = existing_draft
     if not isinstance(draft, dict):
         draft = existing_draft
     revision = int(existing.get("revision") or 0) + 1 if isinstance(existing, dict) else 1
@@ -3913,12 +3994,8 @@ PROGRAM_PLAN_INPUT_HINTS = (
     "数据",
     "标签",
     "指标",
-    "图像",
-    "图片",
     "脑电",
     "eeg",
-    "ship",
-    "not-ship",
     "二分类",
     "分类",
     "步态",
@@ -3937,7 +4014,7 @@ def _looks_like_program_discussion_input(command: str) -> bool:
     if lowered.startswith(("run ", "propose ", "amend ", "status ", "help ")):
         return False
     if any(hint in text or hint in lowered for hint in ("smoke", "track", "feature_", "路线", "候选")) and not any(
-        hint in text or hint in lowered for hint in ("programmd", "任务", "研究目标", "从零", "图像", "图片", "脑电", "ship")
+        hint in text or hint in lowered for hint in ("programmd", "任务", "研究目标", "从零", "脑电", "bci")
     ):
         return False
     return any(hint in text or hint in lowered for hint in PROGRAM_PLAN_INPUT_HINTS)
@@ -4713,6 +4790,43 @@ def build_parser() -> argparse.ArgumentParser:
 
     status = subparsers.add_parser("status", help="查看当前控制面状态")
     status.add_argument("--json", action="store_true")
+
+    goal = subparsers.add_parser("goal", help="管理一次完成即停止的研究目标")
+    goal_subparsers = goal.add_subparsers(dest="goal_action", required=True)
+    goal_start = goal_subparsers.add_parser("start", help="创建 active goal")
+    goal_start.add_argument("objective", nargs="+")
+    goal_start.add_argument("--success", default="", help="完成检查口径")
+    goal_start.add_argument("--constraint", action="append", default=[], help="约束，可重复")
+    goal_start.add_argument("--replace", action="store_true")
+    goal_start.add_argument("--json", action="store_true")
+    goal_status = goal_subparsers.add_parser("status", help="查看 goal")
+    goal_status.add_argument("--json", action="store_true")
+    goal_complete = goal_subparsers.add_parser("complete", help="用证据完成 goal")
+    goal_complete.add_argument("--evidence", required=True)
+    goal_complete.add_argument("--json", action="store_true")
+    goal_clear = goal_subparsers.add_parser("clear", help="清除 goal 状态")
+    goal_clear.add_argument("--json", action="store_true")
+
+    perp = subparsers.add_parser("perp", help="管理长期运行的永续研究目标")
+    perp_subparsers = perp.add_subparsers(dest="perp_action", required=True)
+    perp_start = perp_subparsers.add_parser("start", help="创建 active perp")
+    perp_start.add_argument("objective", nargs="+")
+    perp_start.add_argument("--cadence", default="owner_or_gateway_tick")
+    perp_start.add_argument("--scope", default="local_harness")
+    perp_start.add_argument("--replace", action="store_true")
+    perp_start.add_argument("--json", action="store_true")
+    perp_status = perp_subparsers.add_parser("status", help="查看 perp")
+    perp_status.add_argument("--json", action="store_true")
+    perp_stop = perp_subparsers.add_parser("stop", help="停止 perp")
+    perp_stop.add_argument("--reason", default="")
+    perp_stop.add_argument("--json", action="store_true")
+
+    tree = subparsers.add_parser("research-tree", help="查看 Goal/Perp/事件组成的研究树")
+    tree_subparsers = tree.add_subparsers(dest="tree_action", required=True)
+    tree_show = tree_subparsers.add_parser("show", help="输出研究树")
+    tree_show.add_argument("--json", action="store_true")
+    tree_status = tree_subparsers.add_parser("status", help="输出研究树摘要")
+    tree_status.add_argument("--json", action="store_true")
 
     data = subparsers.add_parser("data", help="管理本地数据目录配置")
     data_subparsers = data.add_subparsers(dest="data_action", required=True)
@@ -6545,12 +6659,8 @@ def run_intake_llm_smoke(
             ("json_greeting_contract", "你好", _expect_tool("reply")),
             ("json_status_contract", "现在系统是什么状态？", _expect_tool("read_status")),
             (
-                "json_image_task_contract",
-                (
-                    "现在生成 Program：我从零开始做一个纯图像任务，只用图像，不用脑电，"
-                    "数据在 Downloads/RSVP跨模态数据，标签来自目录名 ship / not-ship，"
-                    "主指标 test_balanced_accuracy。"
-                ),
+                "json_bci_task_contract",
+                "现在生成 Program：做一个严格因果的 BCI 二分类任务，冻结 train/val/test，主指标 test_balanced_accuracy。",
                 _expect_tool("draft_program"),
             ),
         ]
@@ -6572,11 +6682,11 @@ def run_intake_llm_smoke(
             ("shell_status_question", "现在系统是什么状态？", _expect_message_contains("当前")),
             ("plan_enter", "/plan", _expect_message_contains("Program 起草已开启")),
             (
-                "plan_image_only_draft",
-                "现在生成 Program：我从零开始做一个纯图像任务，只用图像，不用脑电，判断图片是不是船，ship / not-ship 二分类，主指标 test_balanced_accuracy。",
-                _expect_pending_program("rsvp_ship_image_only_v0"),
+                "plan_bci_draft",
+                "现在生成 Program：做一个严格因果的 BCI 二分类任务，冻结 train/val/test，主指标 test_balanced_accuracy。",
+                _expect_pending_program("gait_phase_binary_v0"),
             ),
-            ("plan_show", "/plan show", _expect_message_contains("rsvp_ship_image_only_v0")),
+            ("plan_show", "/plan show", _expect_message_contains("gait_phase_binary_v0")),
             ("plan_accept", "/plan accept", _expect_message_contains("Program 已确认")),
         ]
         for name, command, expectation in shell_cases:
@@ -7083,9 +7193,6 @@ def format_onsite_demo_delivery(payload: dict[str, Any]) -> str:
 
 
 DASHBOARD_TASK_ALIASES = {
-    "rsvp": "rsvp_ship_image_only_v0",
-    "image": "rsvp_ship_image_only_v0",
-    "ship": "rsvp_ship_image_only_v0",
     "legacy": "legacy_bci_mainline",
     "bci": "legacy_bci_mainline",
     "gait": "legacy_bci_mainline",
@@ -7291,19 +7398,7 @@ def _coerce_agent_tool_to_intent(agent_output: dict[str, Any], command_text: str
     tool_name = str(agent_output.get("tool_name") or "reply").strip()
     normalized = str(agent_output.get("normalized_request") or command_text).strip() or command_text
     message = str(agent_output.get("message") or "").strip()
-    combined_request = "\n".join(part for part in (command_text, normalized) if str(part or "").strip())
     explicit_program_request = _looks_like_program_draft_request(command_text)
-    if explicit_program_request and looks_like_rsvp_ship_image_only_request(combined_request):
-        intent = classify_user_turn("program " + normalized, snapshot)
-        draft = intent.get("program_draft") if isinstance(intent, dict) else None
-        if isinstance(draft, dict) and str(draft.get("program_id") or "") == "rsvp_ship_image_only_v0":
-            intent["user_intent_kind"] = "draft_program"
-            intent["proposed_action"] = "draft_program"
-            intent["normalized_request"] = normalized
-            intent["summary"] = "识别为内部 smoke fixture，已锁定对应测试 Program；公开主线仍是通用 BCI Program。"
-            intent["raw_reasoning"] = str(agent_output.get("raw_reasoning") or "")
-            intent["reasoning_summary"] = str(agent_output.get("reasoning_summary") or agent_output.get("reason") or "")
-            return intent
     if tool_name == "draft_program" and not explicit_program_request:
         return {
             "recognized": True,
@@ -9210,6 +9305,9 @@ def _format_headless_entry_help() -> str:
             "常用机器入口：",
             "- autobci doctor --json",
             "- autobci status --json",
+            "- autobci goal status --json",
+            "- autobci perp status --json",
+            "- autobci research-tree show --json",
             "- autobci model list --json",
             "- autobci model current --agent intake --json",
             "- autobci ask \"现在进展如何？\" --json",
@@ -9259,6 +9357,27 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(_build_cli_status_snapshot(repo_root, args.host, args.port), ensure_ascii=False, indent=2))
         else:
             print(_format_cli_status_summary(paths, repo_root=repo_root, host=args.host, port=args.port))
+        return 0
+    if args.command == "goal":
+        payload = _handle_goal_cli(args, repo_root=repo_root)
+        if getattr(args, "json", False):
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        else:
+            print(_format_goal_status(payload))
+        return 0
+    if args.command == "perp":
+        payload = _handle_perp_cli(args, repo_root=repo_root)
+        if getattr(args, "json", False):
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        else:
+            print(_format_perp_status(payload))
+        return 0
+    if args.command == "research-tree":
+        payload = _handle_research_tree_cli(args, repo_root=repo_root)
+        if getattr(args, "json", False):
+            print(json.dumps(payload, ensure_ascii=False, indent=2))
+        else:
+            print(_format_research_tree_status(payload))
         return 0
     if args.command == "data":
         action = str(args.data_action or "").strip().lower()

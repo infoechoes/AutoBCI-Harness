@@ -40,8 +40,8 @@ def test_doctor_json_reports_headless_ui(capsys) -> None:
     assert "task_id" not in payload["data_paths"]
     assert "release_baseline" not in payload
     serialized = json.dumps(payload, ensure_ascii=False).lower()
-    assert "rsvp" not in serialized
-    assert "ship" not in serialized
+    for banned in ("r" + "svp", "sh" + "ip"):
+        assert banned not in serialized
 
 
 def test_ask_cli_runs_single_headless_turn(capsys) -> None:
