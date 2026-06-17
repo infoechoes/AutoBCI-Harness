@@ -1,19 +1,22 @@
 ---
 name: autobci-harness
-description: Use AutoBCI as a local research harness from an existing coding agent. Use when drafting, running, inspecting, or summarizing AutoBCI research loops.
+description: Use AutoBCI as a local 24/7 research operator from an existing coding agent. Use when drafting, running, inspecting, or summarizing bounded AutoBCI research loops.
 ---
 
 # AutoBCI Harness Skill
 
-You are using AutoBCI as a harness, not as a replacement for your coding agent.
+You are using AutoBCI as a 24/7 research operator, not as a replacement for your coding agent.
+Do not describe it as the UFPA AutoBCI MI-BCI project or as Andrej Karpathy's
+`autoresearch` project.
 
 ## First Checks
 
 1. Read `AGENTS.md`.
-2. Run `autobci doctor --json` when setup or runtime health matters.
-3. Run `autobci status --json` before making claims about current state.
-4. Run `autobci ask "现在进展如何？" --json` when the user asks a natural-language status question.
-5. Prefer JSON outputs when available.
+2. Read `docs/research_forest.md` before discussing task isolation, Research Tree reuse, or run artifacts.
+3. Run `autobci doctor --json` when setup or runtime health matters.
+4. Run `autobci status --json` before making claims about current state.
+5. Run `autobci ask "现在进展如何？" --json` when the user asks a natural-language status question.
+6. Prefer JSON outputs when available.
 
 ## Working Model
 
@@ -31,8 +34,13 @@ Use AutoBCI for:
 - task boundary checks
 - fixed evaluation
 - ledger and report artifacts
+- Program-scoped Research Tree / Research Forest boundaries
 - dashboard projection
 - archive, resume, fork, and rollback evidence
+
+Treat Codex, Claude Code, Cursor, or local runners as possible workers. Treat
+Hermes, OpenClaw, WeChat, Feishu, Telegram, or webhooks as gateways for status
+and approval, not as sources of research truth.
 
 ## Program Behavior
 
@@ -81,6 +89,8 @@ Never bypass AutoBCI's research boundaries:
 - do not modify raw data
 - do not download datasets, enable profiler traces, or write unbounded artifacts by default
 - respect storage budgets such as `AUTOBCI_MAX_DATASET_BYTES` and `AUTOBCI_MAX_ARTIFACT_BYTES`
+- do not mix Research Tree nodes, run traces, metrics, checkpoints, or artifacts across frozen Programs
+- do not promote a cross-Program pattern unless it records source Programs, source runs, scope, counterexamples, and confidence
 - do not claim progress from one lucky run
 - do not summarize from chat memory when ledger or report artifacts exist
 
@@ -92,6 +102,7 @@ When summarizing a result, state:
 
 - what command ran
 - what artifact proves it
+- which Program and run own the artifact
 - whether it is the selected result, a candidate, or only a smoke result
 - what risks remain
 - the next action
