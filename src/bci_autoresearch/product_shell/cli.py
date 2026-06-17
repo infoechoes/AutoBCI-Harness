@@ -46,7 +46,6 @@ from bci_autoresearch.control_plane.director_plan import (
     run_director_plan,
 )
 from bci_autoresearch.control_plane.research_loop import (
-    STRUCTURE_RELEASE_BASELINE_FILES,
     STRUCTURE_SANDBOX_RUNNER_ENV,
     STRUCTURE_SANDBOX_TIMEOUT_ENV,
     append_research_trace_event,
@@ -6670,6 +6669,13 @@ def _provider_config_status() -> dict[str, Any]:
     return {"ok": bool(configured), "status": "ok" if configured else "missing_config", "providers": rows}
 
 
+def _public_dataset_record(record: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not isinstance(record, dict):
+        return None
+    public_keys = ("dataset_name", "dataset_root", "source", "updated_at")
+    return {key: record[key] for key in public_keys if record.get(key)}
+
+
 def build_doctor_report(*, repo_root: Path, host: str, port: int) -> dict[str, Any]:
     python_candidates = [repo_root / ".venv" / "Scripts" / "python.exe", repo_root / ".venv" / "bin" / "python"]
     active_venv_python = venv_python_path(repo_root / ".venv")
@@ -6698,12 +6704,20 @@ def build_doctor_report(*, repo_root: Path, host: str, port: int) -> dict[str, A
         active_structure_executor_kind = None
     dataset_record = configured_task_dataset(repo_root, task_id=DEFAULT_DATA_TASK_ID)
     dataset_root = Path(str(dataset_record.get("dataset_root"))) if isinstance(dataset_record, dict) and dataset_record.get("dataset_root") else None
-    release_files = [
+    public_harness_files = [
+        "README.md",
+        "AGENTS.md",
+        "pyproject.toml",
+        "src/bci_autoresearch/product_shell/cli.py",
+        "src/bci_autoresearch/providers/client.py",
+        "src/bci_autoresearch/storage_optimizer.py",
+    ]
+    harness_files = [
         {
             "path": item,
             "exists": (repo_root / item).exists(),
         }
-        for item in STRUCTURE_RELEASE_BASELINE_FILES
+        for item in public_harness_files
     ]
     report = {
         "python": {
@@ -6739,15 +6753,16 @@ def build_doctor_report(*, repo_root: Path, host: str, port: int) -> dict[str, A
         },
         "data_paths": {
             "ok": bool(dataset_root and dataset_root.exists()),
-            "task_id": DEFAULT_DATA_TASK_ID,
+            "purpose": "generic_bci_dataset",
             "config_path": str(data_paths_config_path(repo_root)),
-            "configured": dataset_record if isinstance(dataset_record, dict) else None,
+            "configured": _public_dataset_record(dataset_record),
             "dataset_root_exists": bool(dataset_root and dataset_root.exists()),
-            "expected_layout": ["target/", "nontarget/", "allimages/ optional"],
+            "env_var": "AUTOBCI_DATASET_ROOT",
         },
-        "release_baseline": {
-            "ok": all(bool(item["exists"]) for item in release_files),
-            "files": release_files,
+        "harness_files": {
+            "ok": all(bool(item["exists"]) for item in harness_files),
+            "scope": "generic_public_harness",
+            "files": harness_files,
         },
         "provider": provider_status,
         "provider_config": provider_status,

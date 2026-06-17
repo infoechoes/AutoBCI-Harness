@@ -23,7 +23,10 @@ historical research trees, or raw scientific data.
    user explicitly asks.
 5. Fail visibly when a provider key, dataset, runner, or command is missing.
    Do not use silent fake fallbacks.
-6. Prefer small, reviewable changes.
+6. Do not introduce default dataset downloads, profiler traces, tensor dumps, or
+   unbounded artifacts. New runners must enforce a storage budget before
+   training or repeated artifact writes.
+7. Prefer small, reviewable changes.
 
 ## First Files
 
@@ -31,10 +34,9 @@ Read these before editing:
 
 1. `README.md`
 2. `DEMO_QUICKSTART.md`
-3. `programs/rsvp_ship_image_only_v0/ProgramMD.md`
-4. `scripts/run_rsvp_ship_image_autoresearch.py`
-5. `scripts/serve_dashboard.py`
-6. `.agents/skills/autobci-harness/SKILL.md`
+3. `docs/storage_budget.md`
+4. `scripts/serve_dashboard.py`
+5. `.agents/skills/autobci-harness/SKILL.md`
 
 ## Public Alpha Path
 
@@ -45,14 +47,16 @@ run:
 bash scripts/install.sh
 source .venv/bin/activate
 autobci doctor --json
+autobci status --json
+autobci ask "现在进展如何？" --json
 autobci demo onsite --skip-smoke
-autobci dashboard --task rsvp
+autobci dashboard
 ```
 
 If a real model API key is configured, the live smoke path is:
 
 ```bash
-autobci demo onsite --provider openai --model gpt-5.5
+autobci demo onsite --provider minimax-cn --model MiniMax-M3
 ```
 
 If the key or model is unavailable, this must fail explicitly.
@@ -71,6 +75,23 @@ research loop:
 
 The Dashboard is not a second source of truth. The source of truth is the
 machine-readable ledger, events, and artifact files.
+
+## Product Entry
+
+The public harness is headless by default. Do not reintroduce a TUI as the
+primary entry. Claude Code, Codex, Cursor, Workbody, Hermes, ClawBot, or any
+other agent should drive AutoBCI through stable CLI/JSON commands:
+
+```bash
+autobci doctor --json
+autobci status --json
+autobci ask "现在进展如何？" --json
+autobci data set /absolute/path/to/dataset
+```
+
+Mobile gateways are transport only. They may call whitelisted CLI commands and
+send reports to the user, but Program, ledger, events, and artifacts remain the
+research source of truth.
 
 ## Owner Debug Requirements
 
@@ -94,8 +115,7 @@ progress.
 ## Editable By Default
 
 - `src/**`
-- `scripts/run_rsvp_ship_image_autoresearch.py`
-- `scripts/serve_dashboard.py`
+- `scripts/**`
 - `configs/**`
 - `dashboard/**`
 - `tests/**`
@@ -111,12 +131,14 @@ progress.
 
 ## Validation Defaults
 
-When touching CLI, TUI, provider, Dashboard, runner, or research-loop code, run
+When touching CLI, provider, Dashboard, runner, or research-loop code, run
 the narrowest relevant checks, for example:
 
 ```bash
-PYTHONPATH=src pytest -q tests/test_rsvp_ship_image_autoresearch.py
+PYTHONPATH=src pytest -q tests/test_headless_cli.py
 PYTHONPATH=src python -m bci_autoresearch.product_shell.cli doctor --json
+PYTHONPATH=src python -m bci_autoresearch.product_shell.cli status --json
+PYTHONPATH=src python -m bci_autoresearch.product_shell.cli ask "现在进展如何？" --json
 PYTHONPATH=src python -m bci_autoresearch.product_shell.cli demo onsite --skip-smoke --json
 ```
 

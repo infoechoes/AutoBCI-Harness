@@ -2,9 +2,9 @@
 
 Date: 2026-06-10
 
-This is the shortest local handoff path for a controlled AutoBCI demo. It shows
-AutoBCI as an auditable research-loop harness: runtime check, live model intake,
-Dashboard, task stream, and result replay.
+This is the shortest local handoff path for a controlled AutoBCI smoke demo. It
+shows AutoBCI as an auditable BCI research-loop harness: runtime check, live
+model intake, Dashboard, task stream, and result replay.
 
 ## One command
 
@@ -18,12 +18,17 @@ This will:
 
 1. run the local doctor check,
 2. read the current control-plane status,
-3. open the Dashboard at `http://127.0.0.1:8878/?task=rsvp_ship_image_only_v0`,
+3. open the Dashboard at `http://127.0.0.1:8878/`,
 4. run a live intake smoke with the currently configured model,
 5. write live task progress to `artifacts/monitor/demo_task_stream.json`.
 
 The Dashboard refreshes from `/api/status` and shows the live task stream in the
 current execution panel.
+
+This demo does not download data. Runtime evidence is written under ignored
+local `artifacts/` paths, and runner adapters must enforce storage-budget guards
+for dataset and artifact directories. See `docs/storage_budget.md` before
+pointing the harness at a large local dataset.
 
 ## If they have OpenAI API access
 
@@ -50,15 +55,11 @@ a silent local fallback for this demo.
 ```bash
 autobci status --json
 autobci doctor --json
-autobci dashboard --task rsvp
+autobci dashboard
 ```
 
 ## Boundary to say out loud
 
-The first-screen demo task is `rsvp_ship_image_only_v0`, a pure image-only
-classification harness example. It is useful for showing Program, queue,
-runner, ledger, and Dashboard flow. It is not a BCI result and should not be
-described as cross-modal decoding.
-
-BCI/eCOG work should be discussed as historical research context unless a
-separate frozen BCI Program is selected and run.
+The public smoke path proves the control plane, not a specific scientific
+result. BCI/eCOG work should be discussed only after a concrete frozen BCI
+Program, dataset boundary, runner, and fixed evaluator are selected locally.
