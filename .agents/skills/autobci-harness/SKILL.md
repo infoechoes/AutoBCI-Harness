@@ -12,7 +12,8 @@ You are using AutoBCI as a harness, not as a replacement for your coding agent.
 1. Read `AGENTS.md`.
 2. Run `autobci doctor --json` when setup or runtime health matters.
 3. Run `autobci status --json` before making claims about current state.
-4. Prefer JSON outputs when available.
+4. Run `autobci ask "现在进展如何？" --json` when the user asks a natural-language status question.
+5. Prefer JSON outputs when available.
 
 ## Working Model
 
@@ -54,15 +55,21 @@ Ask only for missing information that would make the run unsafe, impossible, or 
 Use these as the stable interface:
 
 ```bash
-autobci status --json
 autobci doctor --json
-autobci plan
-autobci run
-autobci report latest
+autobci status --json
+autobci ask "现在进展如何？" --json
+autobci data set /absolute/path/to/dataset
+autobci model list --json
+autobci model current --agent intake --json
 autobci dashboard
+autobci demo onsite --skip-smoke --json
 ```
 
 If a command lacks `--json`, read the artifact it writes or summarize the terminal output faithfully.
+
+Do not ask the user to open a TUI. AutoBCI is driven through headless CLI/JSON
+from the existing coding agent or from a mobile gateway such as Hermes / WeChat
+/ ClawBot.
 
 ## Boundaries
 
@@ -72,6 +79,8 @@ Never bypass AutoBCI's research boundaries:
 - do not change primary metric silently
 - do not change data split silently
 - do not modify raw data
+- do not download datasets, enable profiler traces, or write unbounded artifacts by default
+- respect storage budgets such as `AUTOBCI_MAX_DATASET_BYTES` and `AUTOBCI_MAX_ARTIFACT_BYTES`
 - do not claim progress from one lucky run
 - do not summarize from chat memory when ledger or report artifacts exist
 
