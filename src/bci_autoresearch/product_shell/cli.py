@@ -9320,7 +9320,7 @@ def _format_headless_entry_help() -> str:
             "数据配置：",
             "- autobci data set /absolute/path/to/dataset",
             "",
-            "手机/微信网关：让 Hermes、ClawBot 或其它 agent 调用上面的 CLI；不要再开启 TUI remote bridge。",
+            "手机/微信网关：让 Hermes、ClawBot 或其它 agent 调用稳定 CLI/JSON；科研真源仍在本机。",
         ]
     )
 

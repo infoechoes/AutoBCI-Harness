@@ -24,7 +24,8 @@ def test_main_without_subcommand_prints_headless_help(capsys) -> None:
     output = capsys.readouterr().out
     assert "headless" in output
     assert "autobci status --json" in output
-    assert "TUI remote bridge" in output
+    assert "TUI remote bridge" not in output
+    assert "CLI/JSON" in output
 
 
 def test_doctor_json_reports_headless_ui(capsys) -> None:
