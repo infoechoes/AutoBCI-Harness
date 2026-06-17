@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "autobci"
 version = "0.1.0"
-description = "Local auditable research-loop harness alpha for BCI and image experiments"
+description = "你的 7×24 小时自动研究助手:持续运行 AutoResearch,通过微信实时汇报进展,也能接收远程任务"
 requires-python = ">=3.10"
 dependencies = ["rich>=13.7"]
 
