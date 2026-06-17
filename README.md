@@ -12,24 +12,9 @@
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey" alt="platform" />
 </p>
 
-```mermaid
-flowchart LR
-  phone["手机 / 微信 / Hermes<br/>论文链接、状态查询、远程授权"]
-  gateway["OpenClaw / Hermes / CLI<br/>只负责传话和白名单命令"]
-  gate["Human Gate<br/>目标、边界、指标、禁止事项"]
-  program["Frozen Program<br/>冻结研究契约"]
-  planner["Research Planner<br/>方向队列"]
-  guard["Guard<br/>防改题、防漏数、防假进步"]
-  worker["Worker Sandbox<br/>Codex / Claude Code / Cursor / OpenCode"]
-  evaluator["Fixed Evaluator<br/>固定评估器"]
-  trace["Trace + Ledger<br/>命令、diff、指标、产物"]
-  memory["State Compression<br/>长期研究记忆压缩"]
-  report["Dashboard / Mobile Report<br/>本地看板与手机进展"]
-
-  phone --> gateway --> gate --> program --> planner --> guard --> worker --> evaluator --> trace
-  trace --> memory --> planner
-  trace --> report --> phone
-```
+<p align="center">
+  <img src="docs/assets/autobci-research-loop.svg" alt="AutoBCI research control plane" />
+</p>
 
 ---
 
@@ -49,28 +34,34 @@ AutoBCI 把一次 BCI 算法迭代拆成可持续运行的研究循环:冻结任
 
 ### 3. 支持主流模型供应商和 Agent 网关
 
-AutoBCI 不把用户锁死在某一家模型或某一个 coding agent 上。它的公开接口是 CLI/JSON,所以 Claude Code、Codex、Cursor、OpenClaw、Hermes 或其它本地 agent/gateway 都可以通过命令接入。
+AutoBCI 不把用户锁死在某一家模型或某一个 agent 网关上。模型层负责推理、计划和代码 worker;Agent/Gateway 层负责手机消息、远程观察和白名单控制。两层分开展示,不把 Claude 模型和 Claude Code 这类 coding agent 混成同一类。
 
 <p align="center">
   <b>模型供应商</b><br/>
-  <img src="https://img.shields.io/badge/GPT-OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI GPT" />
-  <img src="https://img.shields.io/badge/Claude-Anthropic-D97757?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude" />
-  <img src="https://img.shields.io/badge/DeepSeek-DeepSeek-4D6BFF?style=for-the-badge&logo=deepseek&logoColor=white" alt="DeepSeek" />
-  <img src="https://img.shields.io/badge/MiniMax-M3-111827?style=for-the-badge" alt="MiniMax M3" />
-  <img src="https://img.shields.io/badge/GLM-Zhipu-246BFE?style=for-the-badge" alt="Zhipu GLM" />
-  <img src="https://img.shields.io/badge/Qwen-DashScope-FF6A00?style=for-the-badge&logo=alibabacloud&logoColor=white" alt="Qwen DashScope" />
-  <img src="https://img.shields.io/badge/Kimi-Moonshot-111827?style=for-the-badge" alt="Kimi Moonshot" />
-  <img src="https://img.shields.io/badge/MiMo-Xiaomi-FF6900?style=for-the-badge&logo=xiaomi&logoColor=white" alt="Xiaomi MiMo" />
+  <img src="docs/assets/logos/openai.png" height="42" alt="OpenAI" title="OpenAI" />
+  &nbsp;&nbsp;
+  <img src="docs/assets/logos/claude.png" height="42" alt="Claude" title="Claude" />
+  &nbsp;&nbsp;
+  <img src="docs/assets/logos/deepseek.png" height="42" alt="DeepSeek" title="DeepSeek" />
+  &nbsp;&nbsp;
+  <img src="docs/assets/logos/minimax.png" height="42" alt="MiniMax" title="MiniMax" />
+  &nbsp;&nbsp;
+  <img src="docs/assets/logos/glm.png" height="42" alt="GLM" title="GLM" />
+  &nbsp;&nbsp;
+  <img src="docs/assets/logos/qwen.png" height="42" alt="Qwen" title="Qwen" />
+  &nbsp;&nbsp;
+  <img src="docs/assets/logos/kimi.png" height="42" alt="Kimi" title="Kimi" />
+  &nbsp;&nbsp;
+  <img src="docs/assets/logos/gemini.png" height="42" alt="Gemini" title="Gemini" />
+  &nbsp;&nbsp;
+  <img src="docs/assets/logos/xiaomimimo.png" height="42" alt="Xiaomi MiMo" title="Xiaomi MiMo" />
 </p>
 
 <p align="center">
   <b>Agent / Gateway</b><br/>
-  <img src="https://img.shields.io/badge/Codex-OpenAI-111827?style=for-the-badge&logo=openai&logoColor=white" alt="Codex" />
-  <img src="https://img.shields.io/badge/Claude%20Code-Anthropic-D97757?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude Code" />
-  <img src="https://img.shields.io/badge/Cursor-Agent-000000?style=for-the-badge&logo=cursor&logoColor=white" alt="Cursor" />
-  <img src="https://img.shields.io/badge/OpenCode-Agent-334155?style=for-the-badge" alt="OpenCode" />
-  <img src="https://img.shields.io/badge/OpenClaw-Gateway-0F766E?style=for-the-badge" alt="OpenClaw" />
-  <img src="https://img.shields.io/badge/Hermes-Mobile%20Gateway-7C3AED?style=for-the-badge" alt="Hermes" />
+  <img src="docs/assets/logos/hermes.jpg" height="58" alt="Hermes" title="Hermes" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="docs/assets/logos/openclaw.svg" height="58" alt="OpenClaw" title="OpenClaw" />
 </p>
 
 ---
