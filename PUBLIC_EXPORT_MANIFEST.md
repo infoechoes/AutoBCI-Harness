@@ -19,6 +19,7 @@ This repository is a clean public handoff slice of AutoBCI.
 - `memory/`
 - internal strategy notes
 - financing drafts
+- public-post drafts or positioning scratch notes
 - local recordings or transcripts
 - raw data
 - generated artifacts
