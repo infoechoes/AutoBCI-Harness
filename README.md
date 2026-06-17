@@ -1,8 +1,8 @@
 <h1 align="center">AutoBCI Harness</h1>
 
 <p align="center">
-  <b>把科研从手工调参地狱中解放出来</b><br/>
-  人类定义边界 · AI 自动探索 · 每一步可审计
+  <b>你的 7×24 小时自动研究助手</b><br/>
+  A perpetual AutoResearch harness for BCI algorithms: 人类冻结边界,AI 持续跑实验,手机随时收报告
 </p>
 
 <p align="center">
@@ -12,86 +12,106 @@
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey" alt="platform" />
 </p>
 
+```mermaid
+flowchart LR
+  phone["手机 / 微信 / Hermes<br/>论文链接、状态查询、远程授权"]
+  gateway["OpenClaw / Hermes / CLI<br/>只负责传话和白名单命令"]
+  gate["Human Gate<br/>目标、边界、指标、禁止事项"]
+  program["Frozen Program<br/>冻结研究契约"]
+  planner["Research Planner<br/>方向队列"]
+  guard["Guard<br/>防改题、防漏数、防假进步"]
+  worker["Worker Sandbox<br/>Codex / Claude Code / Cursor / OpenCode"]
+  evaluator["Fixed Evaluator<br/>固定评估器"]
+  trace["Trace + Ledger<br/>命令、diff、指标、产物"]
+  memory["State Compression<br/>长期研究记忆压缩"]
+  report["Dashboard / Mobile Report<br/>本地看板与手机进展"]
+
+  phone --> gateway --> gate --> program --> planner --> guard --> worker --> evaluator --> trace
+  trace --> memory --> planner
+  trace --> report --> phone
+```
+
+---
+
+## 先看亮点
+
+### 1. 7×24 小时的脑电算法自动研究助手
+
+AutoBCI 把一次 BCI 算法迭代拆成可持续运行的研究循环:冻结任务边界,排队研究方向,让 agent 在受限沙盒里改代码、跑实验、复盘结果,再把证据压缩成下一轮可用的研究记忆。它的目标不是"问一次答一次",而是让一台实验室电脑全年都能在边界内持续推进 AutoResearch。
+
+适合它的问题不是简单脚本,而是这类长期科研压力:数据噪声大、个体差异强、跨 session 漂移明显、人工调参空间太大、单次高分又不可信。人类负责定义问题和批准关键边界,AutoBCI 负责把可尝试的方向一个个跑完。
+
+### 2. 离开实验室也能远程控制
+
+你可以在散步、休息、通勤,或者临时看到一篇论文链接时,从手机发一句话给网关:让 AutoBCI 读取状态、记录论文线索、排一个候选方向,或把当前实验进展发回来。手机不是远程桌面,它只是低摩擦的观察和授权入口;真正的研究状态仍然留在本机 Program、ledger、events 和 artifacts 里。
+
+这意味着:你可以离开实验室,但本地 AI 还在跑算法、写记录、给你报告。AutoBCI 是这个模式的第一个落点;后续同一套 Loop Engineering 方法可以适配其它需要长期实验、固定评估和可审计试错的研究领域。
+
+### 3. 支持主流模型供应商和 Agent 网关
+
+AutoBCI 不把用户锁死在某一家模型或某一个 coding agent 上。它的公开接口是 CLI/JSON,所以 Claude Code、Codex、Cursor、OpenClaw、Hermes 或其它本地 agent/gateway 都可以通过命令接入。
+
 <p align="center">
-  <img src="docs/assets/dashboard.png" width="820" alt="AutoBCI Mission Control dashboard" />
+  <b>模型供应商</b><br/>
+  <img src="https://img.shields.io/badge/GPT-OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI GPT" />
+  <img src="https://img.shields.io/badge/Claude-Anthropic-D97757?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude" />
+  <img src="https://img.shields.io/badge/DeepSeek-DeepSeek-4D6BFF?style=for-the-badge&logo=deepseek&logoColor=white" alt="DeepSeek" />
+  <img src="https://img.shields.io/badge/MiniMax-M3-111827?style=for-the-badge" alt="MiniMax M3" />
+  <img src="https://img.shields.io/badge/GLM-Zhipu-246BFE?style=for-the-badge" alt="Zhipu GLM" />
+  <img src="https://img.shields.io/badge/Qwen-DashScope-FF6A00?style=for-the-badge&logo=alibabacloud&logoColor=white" alt="Qwen DashScope" />
+  <img src="https://img.shields.io/badge/Kimi-Moonshot-111827?style=for-the-badge" alt="Kimi Moonshot" />
+  <img src="https://img.shields.io/badge/MiMo-Xiaomi-FF6900?style=for-the-badge&logo=xiaomi&logoColor=white" alt="Xiaomi MiMo" />
+</p>
+
+<p align="center">
+  <b>Agent / Gateway</b><br/>
+  <img src="https://img.shields.io/badge/Codex-OpenAI-111827?style=for-the-badge&logo=openai&logoColor=white" alt="Codex" />
+  <img src="https://img.shields.io/badge/Claude%20Code-Anthropic-D97757?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude Code" />
+  <img src="https://img.shields.io/badge/Cursor-Agent-000000?style=for-the-badge&logo=cursor&logoColor=white" alt="Cursor" />
+  <img src="https://img.shields.io/badge/OpenCode-Agent-334155?style=for-the-badge" alt="OpenCode" />
+  <img src="https://img.shields.io/badge/OpenClaw-Gateway-0F766E?style=for-the-badge" alt="OpenClaw" />
+  <img src="https://img.shields.io/badge/Hermes-Mobile%20Gateway-7C3AED?style=for-the-badge" alt="Hermes" />
 </p>
 
 ---
 
-## 🎯 为什么需要 AutoBCI
+## 核心模块
 
-做过一线 BCI 研究的人都清楚:**真实世界的大脑数据充满个体差异、跨 session 漂移和长尾异常**。依靠人工穷举超参、反复对齐预处理、手动调试算法结构,是一件极其耗费心力且无法覆盖组合空间的事。
+### Guard:防止 AI 为了高分改题
 
-更糟的是,当你把科研任务交给通用的 AI coding agent 时,它们往往会:
-- 🚫 **为了拿高分偷偷改评价指标或数据划分**
-- 🚫 **把完整的试错历史全部喂给大模型,导致 Token 费用爆炸**
-- 🚫 **碰巧跑出一个好结果就停下,不验证鲁棒性**
+Guard 是 AutoBCI 的边界检查层。它负责保护 Program、主指标、数据划分、原始数据和禁止事项,防止 agent 为了拿到更好看的分数而偷偷改题、换指标、碰 raw data,或把一次 lucky run 包装成算法突破。科研 loop 里最危险的不是失败,而是看起来成功但不可复现;Guard 就是专门拦这类假进步的。
 
-**AutoBCI Harness** 是一个为 BCI 等科研场景设计的 **research-loop engineering harness**(研究循环工程框架)。它不是又一个聊天机器人包装,而是一套完整的自动化科研管线:
+### Trace + Ledger:让每一步都能回放
 
-- ✅ **人类只需定义问题边界、评价指标和禁止事项**
-- ✅ **AI agent 在这个空间里持续提方向、改代码、跑实验**
-- ✅ **系统保证每一步可追踪、可回滚、指标固定、数据不被篡改**
+Trace 记录"发生了什么",Ledger 记录"为什么这一步可信或不可信"。一次 run 应该能追到命令、stdout/stderr、修改 diff、评估指标、artifact 路径、回滚线索和下一步理由。Dashboard 可以显示摘要,手机可以收到报告,但审计真源永远是本地 ledger、events 和 artifacts。
 
----
+### State Compression:把长期试错压成可用研究记忆
 
-## 🔥 三大工程底线:为真实科研环境而生
+长周期 AutoResearch 不能把所有历史对话、所有失败日志、所有中间思考都塞回模型。AutoBCI 的状态压缩机制会把多轮尝试沉淀成结构化研究记忆:哪些方向失败了,失败证据是什么,哪些假设还活着,下一轮该避开什么坑。它压缩的是研究状态,不是篡改事实。
 
-市面上存在众多通用 AI agent 框架,但它们往往无法适应科研现场的复杂生态。AutoBCI 在设计时严格坚守了以下工程底线:
+### Storage Budget:别让自动研究撑爆电脑
 
-### 1. 非侵入式接入(Non-invasive Wrapper)
+自动研究最容易悄悄制造大文件:重复数据集、checkpoint、NumPy 数组、预测结果、event log。AutoBCI 默认不下载大数据,不复制原始数据,只保存本地路径指针;runner 应先检查 `AUTOBCI_MAX_DATASET_BYTES` 和 `AUTOBCI_MAX_ARTIFACT_BYTES`。`autobci storage audit --json` 是只读扫描,会报告重复文件和可压缩记录,不会替你删除数据。
 
-各大高校和临床科室通常拥有自己的祖传代码仓库、成熟的数据管线,以及极其严格的**校园网/内网合规限制**。
+### Provider Router:模型可换,失败必须可见
 
-AutoBCI **不造全家桶、不要求重构既有业务代码**。它被设计为一层极轻的外挂:
-- 通过单一的 `program.md` 文件定义任务目标
-- 只要定好验收边界,就能像调度插件一样套在你现有的本地管线上
-- 支持对接 Codex、Claude Code、OpenCode 或自定义 runner
+AutoBCI 把计划、判断、检索和代码 worker 的模型配置拆开。MiniMax、DeepSeek、GLM、Qwen、Kimi、OpenAI、Anthropic、MiMo 都可以作为不同 agent 的 provider。缺 key、模型不兼容或接口失败时必须显式失败;不能用本地 mock 冒充真实模型成功。
 
-### 2. 状态压缩机制:拒当"消防水龙头"
+### Remote Gateway:手机是观察和授权入口
 
-新手编写科研 Loop 最容易犯的错:**将长周期的所有上下文与试错思维链全盘抛给大模型**,这会像"消防水龙头浇花"一样瞬间撑爆 Token,导致极高的资金消耗。
+Hermes、OpenClaw、ClawBot、微信或 webhook 只应该做消息转发和白名单控制:查状态、发报告、记录论文链接、触发安全命令。它们不替代 AutoBCI 的本地状态机,也不应该拿到无限远程执行权限。科研真源仍在本机,手机只是让人类不必守在实验室电脑前。
 
-AutoBCI 内置了**中层状态压缩机制**:
-- 每隔若干试次(如 5~20 次),系统强制对算法变动、尝试路径与结果进行降维总结
-- **实测可将长线任务的 Token 消耗量降至传统方式的 1/10**
-- 让实验室 24 小时无人值守的研究"跑得起"
+### Dashboard:现场观察,不是第二套真相
 
-### 3. Guard 护栏机制:防 AI 篡改题目
-
-当赋予模型最高权限去追求单一优化指标时,AI 为了寻找捷径,第一反应往往是试图**篡改评价标准来"作弊"**(例如试图将复杂的三维坐标预测降维成简单的二分类任务)。
-
-AutoBCI 内建了**强硬的 Guard 校验机制**:
-- 严格剥夺 AI 对核心评价文件(Program、主指标、数据划分、原始数据)的越界修改权限
-- 固定评估器(Fixed Evaluator)保证结果不能靠事后改指标包装成进步
-- 审计记录(Ledger)追踪每一次命令、diff、指标和回滚线索
+Dashboard 负责显示当前 Program、研究队列、动态任务流、候选结果和 artifact 位置。它适合在实验室大屏或浏览器里看运行态,但不能覆盖 ledger。任何"完成了""变好了""跑出了结果"的说法,都必须能回到固定评估器和本地证据链。
 
 ---
 
-## 🧠 核心循环架构
+## 为什么先从 BCI 开始
 
-```text
-Human Gate
-  -> Program (冻结任务定义)
-  -> Direction Queue (研究方向队列)
-  -> Worker Sandbox (受限执行区)
-  -> Fixed Evaluator (固定评估器)
-  -> Ledger / Artifacts (审计真源)
-  -> Compression / Replan (中层压缩)
-  -> Dashboard (运行态投影)
-  -> Human Gate
-```
+真实世界的大脑数据充满个体差异、跨 session 漂移和长尾异常。依靠人工穷举超参、反复对齐预处理、手动调试算法结构,既耗费心力,也无法覆盖组合空间。通用 coding agent 能写代码,但不天然理解科研边界:它可能改评价指标、改数据划分、吃未来信息,或在一次偶然高分后停止验证。
 
-| 模块 | 项目含义 |
-| --- | --- |
-| Human Gate | 人决定问题定义、边界、指标、是否允许改关键契约 |
-| Program | 冻结的任务说明,写清楚要预测什么、用什么数据、主指标是什么、哪些动作禁止 |
-| Direction Queue | 研究方向队列。每个 track 说明为什么做、怎么做、预计改哪些文件 |
-| Worker Sandbox | 受限执行区。可接 Codex、Claude Code、OpenCode、自定义 runner 或内置 patch worker |
-| Fixed Evaluator | 固定评估器。结果不能靠事后改指标包装成进步 |
-| Ledger / Artifacts | 审计真源,记录命令、diff、stdout/stderr、指标、产物路径和回滚线索 |
-| Compression / Replan | 多轮尝试后的中层压缩,把失败、证据和下一步方向重新整理给下一轮 |
-| Dashboard | 运行态投影,用来现场观察当前在做什么；不是第二套真相 |
+AutoBCI Harness 是为 BCI 等科研场景设计的 research-loop engineering harness(研究循环工程框架)。它的第一原则是:人类定义问题边界、主指标和禁止事项;AI 在边界内持续探索;每一步必须可追踪、可回滚、可审计。
 
 ---
 
@@ -380,4 +400,4 @@ autobci storage audit --json
 
 ## 📄 License
 
-Apache-2.0. See `LICENSE`.</p>
+Apache-2.0. See `LICENSE`.
