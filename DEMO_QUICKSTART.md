@@ -2,9 +2,9 @@
 
 Date: 2026-06-10
 
-This is the shortest local handoff path for a controlled AutoBCI smoke demo. It
-shows AutoBCI as an auditable BCI research-loop harness: runtime check, live
-model intake, Dashboard, task stream, and result replay.
+This is the shortest local handoff path for a controlled AutoBCI Harness smoke
+demo. It shows AutoBCI as a 24/7 research operator for coding agents: runtime
+check, live model intake, Dashboard, task stream, and result replay.
 
 ## One command
 
@@ -61,5 +61,6 @@ autobci dashboard
 ## Boundary to say out loud
 
 The public smoke path proves the control plane, not a specific scientific
-result. BCI/eCOG work should be discussed only after a concrete frozen BCI
-Program, dataset boundary, runner, and fixed evaluator are selected locally.
+result. BCI/eCOG work is only one origin domain and should be discussed only
+after a concrete frozen Program, dataset boundary, runner, and fixed evaluator
+are selected locally.

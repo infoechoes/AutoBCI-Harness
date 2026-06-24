@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "autobci"
 version = "0.1.0"
-description = "你的 7×24 小时自动研究助手:持续运行 AutoResearch,通过微信实时汇报进展,也能接收远程任务"
+description = "24/7 research operator for coding agents; not a brain-computer interface system or Karpathy autoresearch"
 requires-python = ">=3.10"
 dependencies = ["rich>=13.7"]
 

@@ -2,13 +2,18 @@
 
 ## Mission
 
-AutoBCI is a local, auditable research-loop harness. It helps a coding agent turn
-a research task into a bounded Program, a direction queue, restricted code
-execution, fixed evaluation, reviewable ledger records, and a Dashboard view.
+AutoBCI is a local, auditable 24/7 research operator for coding agents. It helps
+a coding agent turn a research task into a bounded Program, a direction queue,
+restricted code execution, fixed evaluation, reviewable ledger records, remote
+status reports, and a Dashboard view.
 
 This public harness export is deliberately narrow. It is meant to prove the
 research-loop shape on a clean machine without carrying private strategy notes,
 historical research trees, or raw scientific data.
+
+Public identity boundary: AutoBCI Harness is not the UFPA AutoBCI / Vitor
+Vilas-Boas MI-BCI project and is not Andrej Karpathy's `autoresearch` project.
+BCI is the first research profile, not the product boundary.
 
 ## Hard Rules
 
@@ -26,7 +31,10 @@ historical research trees, or raw scientific data.
 6. Do not introduce default dataset downloads, profiler traces, tensor dumps, or
    unbounded artifacts. New runners must enforce a storage budget before
    training or repeated artifact writes.
-7. Prefer small, reviewable changes.
+7. Do not mix evidence across Programs. Research Tree nodes, run artifacts,
+   metrics, ledgers, and checkpoints must stay scoped to the frozen Program
+   unless an owner explicitly promotes a provenance-backed pattern.
+8. Prefer small, reviewable changes.
 
 ## First Files
 
@@ -35,8 +43,9 @@ Read these before editing:
 1. `README.md`
 2. `DEMO_QUICKSTART.md`
 3. `docs/storage_budget.md`
-4. `scripts/serve_dashboard.py`
-5. `.agents/skills/autobci-harness/SKILL.md`
+4. `docs/research_forest.md`
+5. `scripts/serve_dashboard.py`
+6. `.agents/skills/autobci-harness/SKILL.md`
 
 ## Public Alpha Path
 
@@ -63,18 +72,35 @@ If the key or model is unavailable, this must fail explicitly.
 
 ## Product Boundary
 
-AutoBCI is not a general autonomous agent OS. It is the control plane around a
-research loop:
+AutoBCI is not a general autonomous agent OS and not an `autoresearch` clone. It
+is the operator/control plane around long-running research loops:
 
 - Program and task boundary
 - research direction queue
 - restricted execution sandbox
 - fixed evaluator
 - ledger, events, artifacts, and rollback evidence
+- Research Forest isolation across Programs
 - Dashboard projection
 
 The Dashboard is not a second source of truth. The source of truth is the
 machine-readable ledger, events, and artifact files.
+
+## Research Forest Isolation
+
+AutoBCI does not maintain one universal Research Tree for every task. Treat a
+frozen Program as the smallest isolation boundary. If the task objective, data
+directory, split, primary metric, runner, editable files, or forbidden actions
+change, create a new Program or an explicit amendment before continuing.
+
+Run traces are evidence, not reusable memory. Commands, diffs, stdout/stderr,
+metrics, checkpoints, and artifacts should remain under the active Program/run
+scope. Cross-Program learning is allowed only through explicit promoted
+patterns that record source Program IDs, source runs, scope, counterexamples,
+and confidence.
+
+See `docs/research_forest.md` before changing task storage, research-tree
+behavior, dashboard aggregation, or promotion rules.
 
 ## Product Entry
 
@@ -104,6 +130,7 @@ Any completed research-loop feature should make these questions answerable:
 - What diff was actually produced?
 - Which commands ran?
 - Where are stdout, stderr, metrics, and artifacts?
+- Which Program and run own those artifacts?
 - Was the score selected by the system, merely the highest observed candidate,
   or still unverified?
 - Was any rollback applied?

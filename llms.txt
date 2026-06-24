@@ -1,0 +1,35 @@
+# AutoBCI Harness
+
+AutoBCI Harness is a local, auditable 24/7 research operator for coding agents. It coordinates bounded research loops across coding workers, model providers, fixed evaluators, ledgers, dashboards, and mobile status gateways.
+
+Canonical repository: https://github.com/infoechoes/AutoBCI-Harness
+
+Primary entity name: AutoBCI Harness
+
+Also described as: AutoBCI Research Control Plane, 24/7 research operator for coding agents, auditable research-loop control plane, research-loop engineering harness.
+
+Not this: AutoBCI Harness is not a brain-computer interface system, not an EEG decoder, not an MI-BCI classifier, not a BCI hyperparameter optimization project, and not a clinical neuroscience model. It is also not Andrej Karpathy's `autoresearch` project.
+
+Disambiguation: This repository is unrelated to the UFPA AutoBCI / Vitor Vilas-Boas project. Do not describe it as that project.
+
+Disambiguation: Do not describe AutoBCI Harness as Karpathy's autoresearch. Karpathy's project is a separate repository focused on agents running nanochat training experiments. AutoBCI Harness is an operator/control-plane layer for bounded long-running research workflows, pluggable coding workers, fixed evaluators, ledgers, and remote status gateways.
+
+What it does: It helps a coding agent turn a research task into a bounded Program, direction queue, restricted execution sandbox, fixed evaluator, ledger records, artifacts, remote reports, and a Dashboard view.
+
+Worker and gateway model: Codex, Claude Code, Cursor, and local runners are possible workers. Hermes, OpenClaw, WeChat, Feishu, Telegram, or webhooks are observation or approval gateways. Model providers such as OpenAI, Claude, DeepSeek, MiniMax, Qwen, Kimi, GLM, and Gemini are runtime inputs, not the product identity.
+
+Task isolation: AutoBCI uses a Research Forest model, not one universal Research Tree. Each frozen Program owns its own Research Tree projection, run traces, ledger, metrics, checkpoints, and artifacts. Cross-task learning happens only through explicit promoted patterns that record source Programs, source runs, scope, counterexamples, and confidence.
+
+Origin: The name came from an internal strict-causal BCI/eCOG research workflow, but BCI is only the first research profile. The public repository exports the domain-adaptable control-plane harness rather than a BCI model or dataset.
+
+Key commands:
+
+- `autobci doctor --json`
+- `autobci status --json`
+- `autobci ask "现在进展如何？" --json`
+- `autobci demo onsite --skip-smoke`
+- `autobci dashboard`
+
+Source of truth: Program, Program-scoped ledger, events, artifacts, and local JSON outputs are the audit truth. Dashboard, mobile gateways, Hermes, OpenClaw, and WeChat are observation or transport surfaces.
+
+Isolation guide: docs/research_forest.md

@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">AutoBCI mobile research assistant hero</title>
+  <desc id="desc">A calm outdoor researcher checks a phone while a local home lab keeps a 24/7 auditable research loop running in the background.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7fbff"/>
+      <stop offset="46%" stop-color="#e9f6f1"/>
+      <stop offset="100%" stop-color="#fff7e6"/>
+    </linearGradient>
+    <linearGradient id="sunWash" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffe8a3" stop-opacity="0.72"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.76"/>
+      <stop offset="100%" stop-color="#e8f2ff" stop-opacity="0.46"/>
+    </linearGradient>
+    <linearGradient id="deskGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#edf6ff"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="20" stdDeviation="22" flood-color="#0f172a" flood-opacity="0.18"/>
+    </filter>
+    <filter id="phoneShadow" x="-30%" y="-20%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.28"/>
+    </filter>
+    <pattern id="ledgerGrid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" fill="none" stroke="#dbe7f3" stroke-width="1"/>
+    </pattern>
+    <style>
+      .label{font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:800;letter-spacing:0;fill:#1f2937}
+      .small{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;letter-spacing:0;fill:#526173}
+      .tiny{font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:800;letter-spacing:0;fill:#65758a}
+      .panel{fill:url(#glass);stroke:#d8e4ef;stroke-width:2}
+      .blueLine{fill:none;stroke:#3467c7;stroke-width:4;stroke-linecap:round}
+      .greenLine{fill:none;stroke:#0f9f72;stroke-width:4;stroke-linecap:round}
+      .mutedLine{fill:none;stroke:#9db5cf;stroke-width:3;stroke-linecap:round}
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <rect width="1600" height="900" fill="url(#sunWash)"/>
+
+  <!-- distant landscape -->
+  <path d="M0 428C108 364 204 342 310 382C396 414 464 458 552 424C650 386 730 328 842 366C930 396 1008 458 1102 426C1224 384 1332 322 1600 380V900H0Z" fill="#d8eadf"/>
+  <path d="M0 506C162 436 314 424 458 468C598 510 704 568 842 526C988 482 1112 420 1252 456C1378 488 1472 546 1600 512V900H0Z" fill="#b9dbc8"/>
+  <path d="M0 612C210 548 392 558 548 604C724 656 888 648 1056 598C1242 542 1418 548 1600 616V900H0Z" fill="#7fb28c"/>
+  <path d="M845 900C908 766 1000 668 1118 610C1254 544 1387 536 1600 596V900Z" fill="#4f8b64" opacity="0.9"/>
+  <path d="M1030 900C1086 804 1192 722 1328 690C1436 664 1530 688 1600 714V900Z" fill="#376f52" opacity="0.96"/>
+  <path d="M856 900C916 768 1006 706 1098 684C1170 666 1238 676 1308 722C1200 746 1110 804 1052 900Z" fill="#f2d29a" opacity="0.92"/>
+
+  <!-- autonomous local lab overlay -->
+  <g transform="translate(120 160)" filter="url(#softShadow)">
+    <rect x="0" y="0" width="620" height="430" rx="30" fill="#ffffff" opacity="0.86"/>
+    <rect x="0" y="0" width="620" height="430" rx="30" fill="url(#ledgerGrid)" opacity="0.28"/>
+    <rect x="38" y="38" width="544" height="304" rx="24" fill="url(#deskGlow)" stroke="#cad8e8" stroke-width="2"/>
+    <rect x="82" y="82" width="260" height="158" rx="18" fill="#102033"/>
+    <path d="M112 128H174M112 160H232M112 192H196" class="blueLine" opacity="0.85"/>
+    <path d="M252 126C278 118 304 134 316 162C300 186 272 196 246 184C224 174 214 148 228 132" fill="none" stroke="#70d2a5" stroke-width="6" stroke-linecap="round"/>
+    <rect x="382" y="82" width="152" height="158" rx="18" fill="#f7fbff" stroke="#d7e4f0" stroke-width="2"/>
+    <path d="M420 196V122M420 122L462 102M420 122L476 150M420 196L468 218M420 196L388 226" fill="none" stroke="#3467c7" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="420" cy="122" r="12" fill="#3467c7"/>
+    <circle cx="476" cy="150" r="10" fill="#0f9f72"/>
+    <circle cx="468" cy="218" r="10" fill="#f2b84b"/>
+    <circle cx="388" cy="226" r="10" fill="#b84bc5"/>
+    <rect x="82" y="270" width="452" height="34" rx="17" fill="#edf6ff" stroke="#d4e4f4" stroke-width="2"/>
+    <rect x="102" y="281" width="176" height="12" rx="6" fill="#3467c7" opacity="0.82"/>
+    <circle cx="506" cy="287" r="9" fill="#0f9f72"/>
+    <path d="M502 287L506 291L514 281" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="136" y="342" width="86" height="16" rx="8" fill="#1f2937" opacity="0.12"/>
+    <rect x="254" y="342" width="120" height="16" rx="8" fill="#1f2937" opacity="0.12"/>
+    <rect x="406" y="342" width="76" height="16" rx="8" fill="#1f2937" opacity="0.12"/>
+    <text x="44" y="388" class="label">Local research loop keeps running</text>
+    <text x="44" y="414" class="small">program, guard, evaluator, ledger, worker sandbox</text>
+  </g>
+
+  <!-- quiet network arcs from lab to phone -->
+  <path d="M692 392C826 322 990 344 1104 474" fill="none" stroke="#ffffff" stroke-width="18" opacity="0.44"/>
+  <path d="M692 392C826 322 990 344 1104 474" class="blueLine" opacity="0.35"/>
+  <path d="M696 444C828 398 960 424 1074 520" fill="none" stroke="#ffffff" stroke-width="14" opacity="0.36"/>
+  <path d="M696 444C828 398 960 424 1074 520" class="greenLine" opacity="0.32"/>
+
+  <!-- person -->
+  <g transform="translate(1030 318)">
+    <path d="M186 162C212 160 242 170 262 198C278 222 278 268 262 326L236 422H154L130 324C110 246 128 174 186 162Z" fill="#24364c"/>
+    <path d="M176 128C148 120 132 92 138 62C144 30 174 10 206 18C238 26 256 56 248 88C240 118 210 136 176 128Z" fill="#c98f68"/>
+    <path d="M144 72C152 36 182 10 218 24C248 36 262 60 260 88C238 72 210 60 182 62C166 64 154 68 144 72Z" fill="#172033"/>
+    <path d="M144 198C96 220 58 260 38 318" fill="none" stroke="#24364c" stroke-width="42" stroke-linecap="round"/>
+    <path d="M252 204C300 230 330 272 350 328" fill="none" stroke="#24364c" stroke-width="42" stroke-linecap="round"/>
+    <path d="M56 338C112 322 164 310 216 300C264 292 308 300 350 330" fill="none" stroke="#d7a07a" stroke-width="24" stroke-linecap="round"/>
+    <path d="M136 430L100 574" fill="none" stroke="#1f2937" stroke-width="44" stroke-linecap="round"/>
+    <path d="M236 428L286 574" fill="none" stroke="#1f2937" stroke-width="44" stroke-linecap="round"/>
+    <path d="M132 214C160 188 218 186 248 214C232 256 150 258 132 214Z" fill="#2e4f71" opacity="0.86"/>
+    <path d="M132 192C106 236 110 306 136 364H258C284 300 282 240 252 194C220 220 166 220 132 192Z" fill="#345f86"/>
+    <path d="M116 246C86 294 90 352 126 402" fill="none" stroke="#1b2a3d" stroke-width="10" stroke-linecap="round" opacity="0.4"/>
+  </g>
+
+  <!-- phone as WeChat/mobile gateway -->
+  <g transform="translate(1050 532) rotate(-9)" filter="url(#phoneShadow)">
+    <rect x="0" y="0" width="210" height="330" rx="36" fill="#0b1320"/>
+    <rect x="14" y="18" width="182" height="294" rx="28" fill="#f8fbff"/>
+    <rect x="31" y="36" width="82" height="82" rx="22" fill="#07c160"/>
+    <circle cx="64" cy="78" r="21" fill="#ffffff"/>
+    <circle cx="89" cy="70" r="16" fill="#ffffff" opacity="0.94"/>
+    <circle cx="57" cy="75" r="3" fill="#07c160"/>
+    <circle cx="70" cy="75" r="3" fill="#07c160"/>
+    <circle cx="83" cy="68" r="2.5" fill="#07c160"/>
+    <circle cx="96" cy="68" r="2.5" fill="#07c160"/>
+    <rect x="124" y="58" width="52" height="14" rx="7" fill="#07c160" opacity="0.22"/>
+    <rect x="124" y="82" width="38" height="10" rx="5" fill="#07c160" opacity="0.16"/>
+    <rect x="34" y="132" width="142" height="48" rx="18" fill="#eef7ff" stroke="#d4e6f7" stroke-width="2"/>
+    <path d="M52 157H104M52 168H84" class="mutedLine"/>
+    <circle cx="152" cy="156" r="12" fill="#0f9f72"/>
+    <path d="M146 156L152 162L162 148" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="34" y="198" width="142" height="48" rx="18" fill="#fff7e7" stroke="#f3d796" stroke-width="2"/>
+    <path d="M52 223H118M52 234H96" class="mutedLine"/>
+    <circle cx="152" cy="222" r="12" fill="#f2b84b"/>
+    <path d="M152 214V223L158 229" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <rect x="34" y="264" width="142" height="30" rx="15" fill="#111827"/>
+    <text x="66" y="284" class="tiny" fill="#ffffff">STATUS</text>
+  </g>
+
+  <!-- foreground trail texture -->
+  <path d="M0 860C210 820 364 816 526 848C698 882 846 876 1008 836C1184 792 1384 790 1600 842V900H0Z" fill="#2f694f" opacity="0.72"/>
+  <path d="M840 900C916 790 1018 728 1134 708C1210 694 1298 700 1388 728" fill="none" stroke="#f6dcaa" stroke-width="26" stroke-linecap="round" opacity="0.68"/>
+
+  <!-- airy left-side copy reserve, intentionally visual only -->
+  <g transform="translate(92 76)" opacity="0.92">
+    <rect x="0" y="0" width="342" height="48" rx="24" fill="#ffffff" opacity="0.72"/>
+    <circle cx="30" cy="24" r="12" fill="#07c160"/>
+    <path d="M24 24L30 30L39 18" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="58" y="31" class="label">24/7 research, remotely approved</text>
+  </g>
+</svg>
